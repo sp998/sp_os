@@ -1,5 +1,5 @@
-#include "io.h"
-#include "achi.h"
+#include <io.h>
+#include <achi.h>
 bool ahci_controller_init() {
     // Check if AHCI controller is already enabled
     if (*(volatile uint32_t*)AHCI_GLOBAL_CONTROL & AHCI_GLOBAL_CONTROL_AHCI_ENABLE_BIT) {

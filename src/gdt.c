@@ -1,5 +1,5 @@
 // gdt.c
-#include "gdt.h"
+#include <gdt.h>
 
 //Extern the function from the assembly to load the GDT
 
