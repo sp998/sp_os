@@ -30,6 +30,9 @@ os.iso: $(BUILD_DIR)/kernel.elf
 	cp $(BUILD_DIR)/kernel.elf $(ISO_DIR)/boot/kernel.elf
 	grub-mkrescue -o os.iso $(ISO_DIR)
 
+create-disk:
+	qemu-img create -f raw mydisk.img 100M
+
 run: os.iso
 	qemu-system-i386 -boot d -cdrom os.iso -drive file=mydisk.img,format=raw -m 1024
 
@@ -39,4 +42,4 @@ download:
 clean:
 	rm -rf $(BUILD_DIR)/*.o $(BUILD_DIR)/kernel.elf os.iso
 
-.PHONY: all os.iso run clean download
+.PHONY: all os.iso run clean download create-disk
