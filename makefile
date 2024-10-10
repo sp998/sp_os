@@ -15,6 +15,10 @@ C_SOURCES := $(wildcard $(SRC_DIR)/*.c)
 ASM_SOURCES := $(wildcard $(SRC_DIR)/*.s)
 OBJECTS := $(patsubst $(SRC_DIR)/%, $(BUILD_DIR)/%, $(C_SOURCES:.c=.o) $(ASM_SOURCES:.s=.o))
 
+# ISO file and disk image names
+ISO_FILE := os.iso
+DISK_IMAGE := mydisk.img
+
 all: $(BUILD_DIR)/kernel.elf
 
 $(BUILD_DIR)/kernel.elf: $(OBJECTS)
@@ -27,19 +31,29 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.s
 	$(AS) $(ASFLAGS) $< -o $@
 
 os.iso: $(BUILD_DIR)/kernel.elf
+	mkdir -p $(ISO_DIR)/boot
 	cp $(BUILD_DIR)/kernel.elf $(ISO_DIR)/boot/kernel.elf
-	grub-mkrescue -o os.iso $(ISO_DIR)
+	grub-mkrescue -o $(ISO_FILE) $(ISO_DIR)
 
 create-disk:
-	qemu-img create -f raw mydisk.img 100M
+	qemu-img create -f raw $(DISK_IMAGE) 1G
 
-run: os.iso
-	qemu-system-i386 -boot d -cdrom os.iso -drive file=mydisk.img,format=raw -m 1024
+# Flash the ISO to the disk image
+flash: os.iso
+	dd if=os.iso of=$(DISK_IMAGE) bs=4M conv=notrunc status=progress
+	qemu-img resize $(DISK_IMAGE) 1G
+
+
+
+# Run the OS in QEMU
+run: create-disk os.iso flash
+	qemu-system-i386 -usb -device usb-storage,drive=usb-drive -drive id=usb-drive,file=mydisk.img,format=raw,if=none 
+
 
 download:
-	cp os.iso /mnt/c/Users/Thinkpad/Downloads
+	cp $(ISO_FILE) /mnt/c/Users/Thinkpad/Downloads
 
 clean:
-	rm -rf $(BUILD_DIR)/*.o $(BUILD_DIR)/kernel.elf os.iso
+	rm -rf $(BUILD_DIR)/*.o $(BUILD_DIR)/kernel.elf $(ISO_FILE) $(DISK_IMAGE) $(ISO_DIR)/boot/kernel.elf
 
-.PHONY: all os.iso run clean download create-disk
+.PHONY: all os.iso run clean download create-disk flash
