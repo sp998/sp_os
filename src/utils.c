@@ -46,7 +46,7 @@ void itoa(int num, char *str){
 // Copy a string
 char* strcpy(const char* src,  char* dest ) {
     char* p = dest;
-    while (*dest != '\0') {
+    while (*src != '\0') {
         *p++ = *src++;
     }
     *p = '\0';
@@ -60,3 +60,11 @@ int  abs(int val){
     return -1*val;
 }
 
+
+void *memset(void *ptr, int value, size_t num) {
+    unsigned char *p = ptr;
+    while (num--) {
+        *p++ = (unsigned char)value;
+    }
+    return ptr;
+}

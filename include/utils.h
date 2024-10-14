@@ -9,4 +9,5 @@ void itoa(int num, char *str);
 char* strcpy(const char* src,  char* dest );
 
 int abs(int val);
+void *memset(void *ptr, int value, size_t num);
 #endif

@@ -22,4 +22,12 @@ SECTIONS {
     _bss_end = .;
     _end = .;
 }
+
+.heap ALIGN(4) :
+    {
+        . = ALIGN(4);
+        _heap_start = .; /* Start of the heap */
+        . = . + (4*1024*1024); /* 4 KB + 1 KB for the heap */
+        _heap_end = .; /* End of the heap */
+    }
 }

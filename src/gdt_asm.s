@@ -22,14 +22,13 @@ gdt:
     db 0xCF     ; Granularity: 4 KB, 32-bit
     db 0x00     ; Base high
 
-    ; Stack Segment descriptor
-    dw 0xFFFF   ; Limit low
+   ; Stack Segment descriptor for 64 KB
+    dw 0xFFFF    ; Limit low (0xFFFF = 65535 bytes)
     dw 0x0000   ; Base low
     db 0x00     ; Base middle
-    db 0x92      ; Access: Present, Ring 0, Writable
-    db 0xCF     ; Granularity: 4 KB, 32-bit
+    db 0x92     ; Access: Present, Ring 0, Writable
+    db 0xCF  ; Granularity: 0 (1 byte = 1 byte, no multiplication)
     db 0x00     ; Base high
-
 gdtr:
     dw gdt_end - gdt - 1  ; Limit
     dd gdt                ; Base

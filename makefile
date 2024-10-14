@@ -1,8 +1,10 @@
 CC = gcc
-CFLAGS = -m32 -ffreestanding -fno-builtin -fno-stack-protector -Wall -Wextra -Werror -c -Iinclude
+CFLAGS = -m32 -ffreestanding -fno-builtin -fno-stack-protector -c -Iinclude
 LDFLAGS = -m32 -nostdlib -T link.ld -melf_i386
 AS = nasm
 ASFLAGS = -f elf
+
+# -Wall -Wextra -Werror 
 
 # Directories
 SRC_DIR := src
@@ -47,7 +49,7 @@ flash: os.iso
 
 # Run the OS in QEMU
 run: create-disk os.iso flash
-	qemu-system-i386 -usb -device usb-storage,drive=usb-drive -drive id=usb-drive,file=mydisk.img,format=raw,if=none 
+	qemu-system-i386 -usb -device usb-storage,drive=usb-drive -drive id=usb-drive,file=mydisk.img,format=raw,if=none -m 512M
 
 
 download:
