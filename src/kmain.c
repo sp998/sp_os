@@ -14,17 +14,29 @@ void display_dummy_text(int count){
     }
 }
 void cause_stack_overflow(int n) {
-    //char large_array[4*64*1024];  // Allocate a large amount of stack space per call (4 KB)
+    //char large_text[10*4*64*1024];  // Allocate a large amount of stack space per call (4 KB)
     
-    char* large_text =malloc(4*64*1024*sizeof(char));
+    char* large_text =malloc(10*4*64*1024*sizeof(char));
 
+    
     if(large_text!=NULL){
     strcpy("this is a large text",large_text);
        print(large_text);
     }else{
         print("null pointer");
     }
+    print("\n");
 
+free(large_text);
+
+char* large_text2 =malloc(10*4*64*1024*sizeof(char));
+
+    if(large_text2!=NULL){
+    strcpy("This is another large text",large_text2);
+       print(large_text2);
+    }else{
+        print("null pointer");
+    }
  
 
 
@@ -50,6 +62,7 @@ void kmain(){
     enable_keyboard_interrupt();
     enable_interrupts();
     init_malloc();
+    //set_free_blocks(3,sizeof(char)*10*4*64*1024);
     
     
     //printc("$p>",GREEN);
