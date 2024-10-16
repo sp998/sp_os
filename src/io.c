@@ -668,5 +668,29 @@ void scroll_down(){
 
 
 
+void print_hex(uint32_t num) {
+    const char* hex_digits = "0123456789ABCDEF";
+    char buffer[10]; // Enough for 8 hex digits + null terminator
+    int i = 0;
+
+    // Add prefix
+    buffer[i++] = '0';
+    buffer[i++] = 'x';
+
+    // Convert to hexadecimal string
+    for (int j = 28; j >= 0; j -= 4) {
+        uint8_t hex_digit = (num >> j) & 0xF; // Get the current hex digit
+        if (hex_digit || i > 2) { // Only print leading zeros if we haven't printed any significant digits yet
+            buffer[i++] = hex_digits[hex_digit];
+        }
+    }
+    
+    // Null-terminate the string
+    buffer[i] = '\0';
+
+    // Print the complete hexadecimal string
+    print(buffer);
+}
+
 
 

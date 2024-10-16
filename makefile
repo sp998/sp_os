@@ -49,7 +49,8 @@ flash: os.iso
 
 # Run the OS in QEMU
 run: create-disk os.iso flash
-	qemu-system-i386 -usb -device usb-storage,drive=usb-drive -drive id=usb-drive,file=mydisk.img,format=raw,if=none -m 512M
+	qemu-system-i386 -usb -device usb-ehci,id=ehci -device usb-storage,drive=usb-drive -drive id=usb-drive,file=mydisk.img,format=raw,if=none -m 512M
+
 
 
 download:

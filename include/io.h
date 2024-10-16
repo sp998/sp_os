@@ -64,6 +64,7 @@ void init_idt();
 
 
 void print(const char* str);
+void print_hex(uint32_t num);
 void move_cursor(unsigned short pos);
 void write_to_cell(int cell,char c);
 extern uint8_t inb(uint16_t port);

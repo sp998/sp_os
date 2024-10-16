@@ -4,6 +4,7 @@
 #include <stdarg.h>
 #include <ide.h>
 #include <mem.h>
+#include <ehci.h>
 
 
 void display_dummy_text(int count){
@@ -59,15 +60,17 @@ void kmain(){
 
     init_idt();
     init_pic();
-    enable_keyboard_interrupt();
-    enable_interrupts();
-    init_malloc();
+    // enable_keyboard_interrupt();
+    // enable_interrupts();
+    // init_malloc();
     //set_free_blocks(3,sizeof(char)*10*4*64*1024);
     
     
     //printc("$p>",GREEN);
-    printc("$p> ",GREEN);
-   cause_stack_overflow(0);
+    // printc("$p> ",GREEN);
+
+    pci_scan_for_ehci();
+
 
 
 
