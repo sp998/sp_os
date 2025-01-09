@@ -10,4 +10,5 @@ char* strcpy(const char* src,  char* dest );
 
 int abs(int val);
 void *memset(void *ptr, int value, size_t num);
+void *memcpy(void *dest, const void *src, size_t n);
 #endif

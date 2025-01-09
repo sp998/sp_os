@@ -4,6 +4,7 @@
 #include <stdarg.h>
 #include <ide.h>
 #include <mem.h>
+#include <memdisk.h>
 
 void kmain(){
  
@@ -19,6 +20,8 @@ void kmain(){
      init_malloc();
     //set_free_blocks(3,sizeof(char)*10*4*64*1024);
     
+    init_mem_disk();
+
     
     //printc("$p>",GREEN);
      printc("$p> ",GREEN);

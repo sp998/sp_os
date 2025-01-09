@@ -68,3 +68,23 @@ void *memset(void *ptr, int value, size_t num) {
     }
     return ptr;
 }
+
+void *memcpy(void *dest, const void *src, size_t n) {
+    unsigned long *d = dest;
+    const unsigned long *s = src;
+
+    // Copy 8 bytes (64-bits) at a time (assuming long is 64-bits)
+    while (n >= sizeof(unsigned long)) {
+        *d++ = *s++;
+        n -= sizeof(unsigned long);
+    }
+
+    // Copy remaining bytes (less than sizeof(unsigned long))
+    unsigned char *d_byte = (unsigned char *)d;
+    const unsigned char *s_byte = (const unsigned char *)s;
+    while (n--) {
+        *d_byte++ = *s_byte++;
+    }
+
+    return dest;
+}
