@@ -1,7 +1,6 @@
 #ifndef ACHI_H
 #define ACHI_H
 #include <stdint.h>
-#include <stdio.h>
 #include <stdbool.h>
 
 // Define AHCI controller registers

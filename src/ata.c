@@ -1,6 +1,5 @@
 #include <ata.h>
 #include <stdint.h>
-#include <stdio.h>
 
 // Define PCI configuration space registers
 #define PCI_CONFIG_VENDOR_ID    0x00

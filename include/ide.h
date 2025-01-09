@@ -2,7 +2,6 @@
 #define IDE_H
 
 #include <stdbool.h>
-#include <stdio.h>
 #include <stdint.h>
 
 

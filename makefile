@@ -37,6 +37,11 @@ os.iso: $(BUILD_DIR)/kernel.elf
 	cp $(BUILD_DIR)/kernel.elf $(ISO_DIR)/boot/kernel.elf
 	grub-mkrescue -o $(ISO_FILE) $(ISO_DIR)
 
+build-os:
+	docker build -t os-dev-env .
+	docker run -it --rm -v .:/workspace os-dev-env make os.iso
+
+
 create-disk:
 	qemu-img create -f raw $(DISK_IMAGE) 1G
 
@@ -48,8 +53,8 @@ flash: os.iso
 
 
 # Run the OS in QEMU
-run: create-disk os.iso flash
-	qemu-system-i386 -usb -device usb-ehci,id=ehci -device usb-storage,drive=usb-drive -drive id=usb-drive,file=mydisk.img,format=raw,if=none -m 512M
+run:build-os
+	qemu-system-i386 -m 512M -cdrom os.iso
 
 
 
