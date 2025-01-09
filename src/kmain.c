@@ -5,51 +5,6 @@
 #include <ide.h>
 #include <mem.h>
 
-
-void display_dummy_text(int count){
-    for(int i=0;i<count;i++){
-        print("Number is:");
-        print_number(i);
-        print("\n");
-    }
-}
-void cause_stack_overflow(int n) {
-    //char large_text[10*4*64*1024];  // Allocate a large amount of stack space per call (4 KB)
-    
-    char* large_text =malloc(10*4*64*1024*sizeof(char));
-
-    
-    if(large_text!=NULL){
-    strcpy("this is a large text",large_text);
-       print(large_text);
-    }else{
-        print("null pointer");
-    }
-    print("\n");
-
-free(large_text);
-
-char* large_text2 =malloc(10*4*64*1024*sizeof(char));
-
-    if(large_text2!=NULL){
-    strcpy("This is another large text",large_text2);
-       print(large_text2);
-    }else{
-        print("null pointer");
-    }
- 
-
-
-    if(n!=0){
-    // Recursively call itself
-    cause_stack_overflow(n-1);
-    }
-}
-
-
-
-
-
 void kmain(){
  
     init_gdt();
