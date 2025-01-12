@@ -3,6 +3,8 @@
 #include <string.h>
 #include <args.h>
 #include <filesystem.h>
+#include <system_events.h>
+#include <sysvars.h>
 
 #define COMMAND_PORT 0x3D4
 #define DATA_PORT 0x3D5
@@ -15,8 +17,6 @@
 
 #define COLS 80
 #define ROWS 25
-
-#define BACKSPACE_OFFSET 5
 
 #define KEYBOARD_DATA_PORT 0x60
 #define PIC1_COMMAND 0x20
@@ -94,9 +94,9 @@ void reset_shell(){
     scroll_pos=0;
     current_height=0;
     buffer_input_index=0;
- 
-    printc("$p> ",GREEN);
-    
+    Event* event=get_event(SCREEN_RESET_EVENT);
+    dispatch_event(event);
+
 
 }
 
@@ -115,13 +115,14 @@ void clear_screen(){
     }
     last_pos=0;
     move_cursor(last_pos/2);
-    
+   
+
 }
 
 
 void backspace(){
 
-       if(cur_col()<BACKSPACE_OFFSET){
+       if(cur_col()<get_back_space_offset()){
         return;
        }
         buffer_input[buffer_input_index-1] = '\0';
@@ -387,7 +388,7 @@ void keyboard_isr_handler() {
     if(strcmp(args[0],"mkdir")==0){
        make_dir(args[1]);
        print("\n");
-       printc("$p> ",GREEN);
+       printc(get_shell_prompt(),GREEN);
        show_buffer();
 
        outb(PIC1_COMMAND, PIC_EOI);
@@ -397,7 +398,7 @@ void keyboard_isr_handler() {
     if(strcmp(args[0],"ls")==0){
         list_all();
        
-        printc("$p> ",GREEN);
+        printc(get_shell_prompt(),GREEN);
          show_buffer();
         outb(PIC1_COMMAND, PIC_EOI);
         return;
@@ -445,7 +446,7 @@ void keyboard_isr_handler() {
    
 
     
-    printc("$p> ",GREEN);
+    printc(get_shell_prompt(),GREEN);
     scroll_up();
     scroll_up();
     show_buffer();
