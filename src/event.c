@@ -12,7 +12,13 @@ void subscribe_to_event(Event* event,EventHandler* handler){
     {
         current=current->next;
     }
-    current->handler=handler;
+    if(current->handler!=NULL){
+    Event* newEvent = createEvent();
+    newEvent->handler = handler;
+    current->next = newEvent;
+    }else{
+        current->handler = handler;
+    }
 }
 
 

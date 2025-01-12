@@ -10,6 +10,7 @@
 #include <sysvars.h>
 
 
+
 void on_screen_reset(){
  printc(get_shell_prompt(),GREEN);
 
@@ -44,6 +45,8 @@ void kmain(){
 
     printc(get_shell_prompt(),GREEN);
     subscribe_to_event(get_event(SCREEN_RESET_EVENT),on_screen_reset);
+ 
+
      
 
 

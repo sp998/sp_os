@@ -345,121 +345,6 @@ void display_char(uint8_t keycode){
 }
 
 
-// Keyboard ISR
-void keyboard_isr_handler() {
-     uint8_t keycode = inb(KEYBOARD_DATA_PORT);
-      if (keycode & 0x80) {
-        outb(PIC1_COMMAND, PIC_EOI);
-        return;
-    }
-    if(keycode==0x0E){
-        backspace();
-        outb(PIC1_COMMAND, PIC_EOI);
-        show_buffer();
-        return;
-    
-    }
-    if(keycode==0x49){
-        scroll_up();
-         show_buffer();
-        
-      
-       
-    }
-
-    if(keycode==0x51){
-        scroll_down();
-         show_buffer();
-        
-    }
-
-    if(keycode==0x1c){
-    char input[80];
-    get_line(input);
-    char** args = get_args(input,80);
-
-    if(strcmp(input,"clear")==0){
-        reset_shell();
-        show_buffer();
-        outb(PIC1_COMMAND, PIC_EOI); 
-        return;
-    }
-
-    if(strcmp(args[0],"mkdir")==0){
-       make_dir(args[1]);
-       print("\n");
-       printc(get_shell_prompt(),GREEN);
-       show_buffer();
-
-       outb(PIC1_COMMAND, PIC_EOI);
-       return;
-    }
-
-    if(strcmp(args[0],"ls")==0){
-        list_all();
-       
-        printc(get_shell_prompt(),GREEN);
-         show_buffer();
-        outb(PIC1_COMMAND, PIC_EOI);
-        return;
-    }
-
-    if(strcmp(args[0],"chbg")==0){
-        set_text_color(WHITE);
-        if(strcmp(args[1],"red")==0){
-            set_background(RED);
-        }
-        else if(strcmp(args[1],"green")==0){
-            set_background(GREEN);
-        }
-        else if(strcmp(args[1],"blue")==0){
-            set_background(BLUE);
-        }
-        else if(strcmp(args[1],"black")==0){
-            set_background(BLACK);
-        }else if(strcmp(args[1],"orange")==0){
-            set_background(RED|GREEN);
-        }else if(strcmp(args[1],"yellow")==0){
-            set_background(RED|LIGHT_BROWN);
-            set_text_color(BLACK);
-        }else if(strcmp(args[1],"pink")==0){
-            set_background(LIGHT_RED);
-        }else if(strcmp(args[1],"gray")==0){
-            set_background(LIGHT_GRAY);
-            set_text_color(BLACK);
-        }else if(strcmp(args[1],"magenta")==0){
-            set_background(MAGENTA);
-        }
-        
-        else{
-            set_background(BLACK);
-        }
-        reset_shell();
-        show_buffer();
-        outb(PIC1_COMMAND,PIC_EOI);
-
-        return;
-    }
-    print("\nUnknown command:");
-    print(input);
-    print("\n");
-   
-
-    
-    printc(get_shell_prompt(),GREEN);
-    scroll_up();
-    scroll_up();
-    show_buffer();
-    outb(PIC1_COMMAND, PIC_EOI); 
-    return;
-    }
-    
-   
-     //display_keycode(keycode);
-     display_char(keycode);
-     show_buffer();
-    outb(PIC1_COMMAND, PIC_EOI); // Send end-of-interrupt (EOI) signal
-}
 
 
 void display_keycode(uint8_t keycode){
@@ -469,9 +354,6 @@ void display_keycode(uint8_t keycode){
         print(message);
         print(str);
 }
-
-
-
 
 
 

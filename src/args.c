@@ -3,9 +3,10 @@
 static char* args[MAX_ARGS];       // Static array to hold the pointers to arguments
 static char string_buffers[MAX_ARGS][STRING_BUFFER_SIZE];  // Static buffers for each argument
 
-char** get_args(char* input, size_t length) {
+char** get_args(char* input, size_t length,int* argc) {
     size_t argsIndex = 0;
     size_t buffIndex = 0;
+    
 
     for(size_t i = 0; i < length; i++) {
         char c = input[i];
@@ -15,6 +16,7 @@ char** get_args(char* input, size_t length) {
                 // Point args to the current string buffer
                 args[argsIndex] = string_buffers[argsIndex];
                 argsIndex++;
+           
                 buffIndex = 0;
                 if (c == '\0' || argsIndex >= MAX_ARGS) {
                     break;  // If we reached the end of the input or max args, break the loop
@@ -31,10 +33,13 @@ char** get_args(char* input, size_t length) {
         string_buffers[argsIndex][buffIndex] = '\0';
         args[argsIndex] = string_buffers[argsIndex];
         argsIndex++;
+      
+      
     }
-
+    *argc=argsIndex;
     // Null-terminate the args array
     args[argsIndex] = NULL;
+    
 
     return args;
 }
@@ -42,7 +47,6 @@ char** get_args(char* input, size_t length) {
 void clear_args() {
     for (size_t i = 0; i < MAX_ARGS; i++) {
         args[i] = NULL;  // Reset pointers to NULL
-        // Optionally clear the buffers if necessary
         // memset(string_buffers[i], 0, BUFFER_SIZE);  // Uncomment this line to clear the buffers
     }
 }
