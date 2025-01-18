@@ -1,5 +1,6 @@
 #include "utils.h"
 #include "mem.h"
+#include <string.h>
 void itoa(int num, char *str){
     int i = 0;
     int is_negative = 0;
@@ -43,6 +44,39 @@ void itoa(int num, char *str){
     }
 }
 
+
+void split_name_ext(char* src, char* name, char* ext) {
+    char* current = src; // Pointer to iterate through the source string
+    char* name_ptr = name; // Pointer to copy characters to the name buffer
+    char* ext_ptr = ext; // Pointer to copy characters to the ext buffer
+    int found_dot = 0; // Flag to indicate if we found the dot
+
+    // Iterate through each character in the source string
+    while (*current != '\0') {
+        if (*current == '.') {
+            found_dot = 1; // Found the dot, so next characters are in the extension
+            current++; // Move past the dot
+            continue;
+        }
+
+        // Copy characters to name or ext based on whether dot has been found
+        if (found_dot) {
+            *ext_ptr++ = *current++;
+        } else {
+            *name_ptr++ = *current++;
+        }
+    }
+
+    // Ensure null termination of strings
+    *name_ptr = '\0';
+    if (found_dot) {
+        *ext_ptr = '\0'; // Null-terminate the extension string
+    } else {
+        *ext = '\0'; // If no dot, set the extension string to empty
+    }
+}
+
+
 // Copy a string
 char* strcpy(const char* src,  char* dest ) {
     char* p = dest;
@@ -52,6 +86,17 @@ char* strcpy(const char* src,  char* dest ) {
     *p = '\0';
     return dest;
 }
+
+
+char* strcombine(const char* src1,const char* scr2){
+    size_t len1 = strlen(src1);
+    size_t len2 = strlen(scr2);
+    char* result = (char*)malloc(len1+len2+1);
+    strcpy(src1,result);
+    strcpy(scr2,result+len1);
+    return result;
+}
+
 
 int  abs(int val){
     if(val>0){

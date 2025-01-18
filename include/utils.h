@@ -11,4 +11,6 @@ char* strcpy(const char* src,  char* dest );
 int abs(int val);
 void *memset(void *ptr, int value, size_t num);
 void *memcpy(void *dest, const void *src, size_t n);
+char* strcombine(const char* src1,const char* scr2);
+void split_name_ext(char* scr,char* name,char* ext);
 #endif
