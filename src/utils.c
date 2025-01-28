@@ -45,6 +45,31 @@ void itoa(int num, char *str){
 }
 
 
+
+// Function to split a string into tokens
+int split_string(const char *str, char delimiter, char tokens[][20], int max_tokens) {
+    int token_count = 0;
+    int char_index = 0;
+
+    for (int i = 0; str[i] != '\0'; i++) {
+        if (str[i] == delimiter) {
+            tokens[token_count][char_index] = '\0'; // Null-terminate the token
+            token_count++;
+            char_index = 0;
+
+            if (token_count >= max_tokens) {
+                break; // Avoid overflow of the tokens array
+            }
+        } else {
+            tokens[token_count][char_index++] = str[i];
+        }
+    }
+
+    // Add the last token if there was no trailing delimiter
+    tokens[token_count][char_index] = '\0'; // Null-terminate the last token
+    return token_count + 1; // Return the total number of tokens
+}
+
 void split_name_ext(char* src, char* name, char* ext) {
     char* current = src; // Pointer to iterate through the source string
     char* name_ptr = name; // Pointer to copy characters to the name buffer

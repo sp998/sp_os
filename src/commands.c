@@ -12,12 +12,49 @@ void clear_command(){
   
 }
 
-void touch(){
+void mkdir_command(int argc, char* argv[]){
+    if(argc<2){
+        print("directory name is required.");
+        print("\n");
+        return;
+    }
+    add_directory(get_root(),argv[1]);
+}
+
+void cd_command(int argc,char* argv[]){
+    if(argc<2){
+        print("directory name is required.");
+        print("\n");
+        return;
+    }
+       
+  
+    File* new_root = find_file(get_current_directory(),argv[1]);
+    if(!new_root->is_directory){
+        print(argv[1]);
+        print(": is not a directory\n");
+        return;
+    }
+    if(new_root==NULL){
+        print(argv[1]);
+        print(":No such directory exist\n");
+        return;
+    }
+    set_current_directory(new_root);
 
 }
 
+void touch(int argc,char* argv[]){
+  if(argc<2){
+    print("file name is required.");
+    print("\n");
+    return;
+  }
+   add_file(get_current_directory(),argv[1]);
+}
+
 void ls_command(int argc,char* argv[]){
-    list_files(get_root());
+    list_files(get_current_directory());
 }
 
 void write(){
@@ -39,7 +76,9 @@ void read(){
 Command* init_commands(){
    Command* commandHead=createCommand("clear",clear_command);
    register_command(commandHead,createCommand("ls",ls_command));
-   register_command(commandHead,createCommand("write",write));
-   register_command(commandHead,createCommand("read",read));
+   register_command(commandHead,createCommand("touch",touch));
+   register_command(commandHead,createCommand("cd",cd_command));
+   register_command(commandHead,createCommand("mkdir",mkdir_command));
+
    return commandHead;
 }

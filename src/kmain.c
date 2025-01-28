@@ -40,16 +40,38 @@ void kmain(){
     init_root();
     
     
-
+    print("          ,-.----.               ,----..                \n");
+    print("  .--.--.   \\    /  \\             /   /   \\    .--.--.    \n");
+    print(" /  /    '. |   :    \\           /   .     :  /  /    '.  \n");
+    print("|  :  /`. / |   |  .\\ :         .   /   ;.  \\|  :  /`. /  \n");
+    print(";  |  |--`  .   :  |: |        .   ;   /  ` ;;  |  |--`   \n");
+    print("|  :  ;_    |   |   \\ :        ;   |  ; \\ ; ||  :  ;_     \n");
+    print(" \\  \\    `. |   : .   /        |   :  | ; | ' \\  \\    `.  \n");
+    print("  `----.   \\;   | |`-'         .   |  ' ' ' :  `----.   \\ \n");
+    print("  __ \\  \\  ||   | ;            '   ;  \\; /  |  __ \\  \\  | \n");
+    print(" /  /`--'  /:   ' |             \\   \\  ',  /  /  /`--'  / \n");
+    print("'--'.     / :   : :              ;   :    /  '--'.     /  \n");
+    print("  `--'---'  |   | :               \\   \\ .'     `--'---'   \n");
+    print("            `---'.|                `---`                   \n");
+    print("              `---`                         \n");
     // Configure shell
-    set_shell_prompt("$p>");      // Set shell prompt
+
+    print("WARNING\n");
+    print("This operating system has full, unristricted control over your device.Runnig this OS may:");
+    print("1. Access to all memory and storage.\n");
+    print("2. Control over all hardware components(e.g. CPU, GPU, disk,peripherals).\n");
+    print("Runnig this OS without care may lead to unintended data loss or damage to your device.\n");
+
+    print("Do you want to continue?(y/n):");
+    set_shell_prompt("\n$p>");
+    print("AUTHOR:SANJAY PAUDELL\n");
     printc(get_shell_prompt(), GREEN); // Display the shell prompt in green
 
     // Subscribe to screen reset event to redraw the prompt
     subscribe_to_event(get_event(SCREEN_RESET_EVENT), on_screen_reset);
     
     //dispacth system ready event 
-
+     
 
     // Finalize display setup
     update_display();             // Refresh the display with initial content
