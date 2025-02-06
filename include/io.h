@@ -1,6 +1,13 @@
 #ifndef IO_H
 #define IO_H
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+
 #include <stddef.h>
 #include <stdint.h>
 
@@ -80,5 +87,7 @@ void printc(const char *str,uint8_t color);
 void write_to_cell_c(int cell,char c,uint8_t color);
 
 
-
+#ifdef __cplusplus
+}
+#endif
 #endif

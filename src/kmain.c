@@ -10,6 +10,16 @@
 
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void cpp_fun();  // Function prototype
+
+#ifdef __cplusplus
+}
+#endif
+
 
 void on_screen_reset(){
  printc(get_shell_prompt(),GREEN);
@@ -61,10 +71,10 @@ void kmain(){
     print("1. Access to all memory and storage.\n");
     print("2. Control over all hardware components(e.g. CPU, GPU, disk,peripherals).\n");
     print("Runnig this OS without care may lead to unintended data loss or damage to your device.\n");
-
-    print("Do you want to continue?(y/n):");
     set_shell_prompt("\n$p>");
-    print("AUTHOR:SANJAY PAUDELL\n");
+    print("AUTHOR:SANJAY PAUDEL\n");
+
+    cpp_fun();
     printc(get_shell_prompt(), GREEN); // Display the shell prompt in green
 
     // Subscribe to screen reset event to redraw the prompt
