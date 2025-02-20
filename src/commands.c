@@ -53,22 +53,92 @@ void touch(int argc,char* argv[]){
    add_file(get_current_directory(),argv[1]);
 }
 
+void file_exists(int argc,char* argv[]){
+    if(argc<2){
+        print("file name is required.");
+        print("\n");
+        return;
+    }
+    File* file = find_file(get_root(),argv[1]);
+
+    if(file==NULL){
+        print("file not found\n");
+    }else{
+        print("file found\n");
+    }
+
+}
+
 void ls_command(int argc,char* argv[]){
     list_files(get_current_directory());
 }
 
-void write(){
-wirte_to_mem_disk(0,"hello",strlen("hello"));
-wirte_to_mem_disk(1,"hi",strlen("hi"));
+void write(int argc, char* argv[]) {
+    if (argc < 2) {
+        print("file name is required.\n");
+        return;
+    }
+    
+    if (argc < 3) {
+        print("content to write is required.\n");
+        return;
+    }
+
+    // argv[1] is the filename (not used in RAM disk directly)
+    // Combine all arguments after filename as content
+     File* file = find_file(get_current_directory(),argv[1]);
+    if(file==NULL){
+        print("file not found\n");
+        return;
+    }
+    int current_offset = file->offset;
+
+    int total_length = 0;
+    for (int i = 2; i < argc; i++) {
+        total_length += strlen(argv[i]);
+        if (i < argc - 1) total_length++; // Add space between arguments
+    }
+
+    if (current_offset + total_length > RAM_DISK_SIZE) {
+        print("Error: Not enough space in RAM disk\n");
+        return;
+    }
+
+    // Write each argument to RAM disk
+    for (int i = 2; i < argc; i++) {
+        int arg_length = strlen(argv[i]);
+        write_to_mem_disk(current_offset, argv[i], arg_length);
+        current_offset += arg_length;
+        
+        // Add space between arguments (except after last one)
+        if (i < argc - 1) {
+            write_to_mem_disk(current_offset, " ", 1);
+            current_offset++;
+        }
+    }
+
+    print("write successful\n");
 }
 
-void read(){
-    char buffer[10];
-    read_from_mem_disk(0,buffer,10);
-    print(strcombine(buffer,"\n"));
+void read(int argc, char* argv[]) {
+    if (argc < 2) {
+        print("file name is required.\n");
+        return;
+    }
 
-    read_from_mem_disk(1,buffer,10);
-    print(strcombine(buffer,"\n"));
+    File* file = find_file(get_current_directory(),argv[1]);
+    if(file==NULL){
+        print("file not found\n");
+        return;
+    }
+    int current_offset = file->offset;
+    int length = file->size;
+    char* buffer = (char*)malloc(length + 1);
+    read_from_mem_disk(current_offset, buffer, length);
+    buffer[length] = '\0';
+    print(buffer);
+    print("\n");
+    free(buffer);
 }
 
 
@@ -76,9 +146,12 @@ void read(){
 Command* init_commands(){
    Command* commandHead=createCommand("clear",clear_command);
    register_command(commandHead,createCommand("ls",ls_command));
-   register_command(commandHead,createCommand("touch",touch));
+   register_command(commandHead,createCommand("createfile",touch));
    register_command(commandHead,createCommand("cd",cd_command));
    register_command(commandHead,createCommand("mkdir",mkdir_command));
+   register_command(commandHead,createCommand("chfile",file_exists));
+   register_command(commandHead,createCommand("write",write));
+   register_command(commandHead,createCommand("read",read));
 
    return commandHead;
 }

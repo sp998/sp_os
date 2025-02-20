@@ -1,5 +1,10 @@
 #ifndef  MEM_H
 #define MEM_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stddef.h>
 #include <stdint.h>
 
@@ -19,5 +24,7 @@ void init_malloc();
 void* malloc(size_t size);
 void free(void* ptr);
 
-
+#ifdef __cplusplus
+}
+#endif
 #endif 

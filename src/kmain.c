@@ -1,4 +1,3 @@
-#include <gdt.h>
 #include <io.h>
 #include <utils.h>
 #include <ide.h>
@@ -14,7 +13,8 @@
 extern "C" {
 #endif
 
-void cpp_fun();  // Function prototype
+void main();  // Function prototype
+void set_up_gtd();
 
 #ifdef __cplusplus
 }
@@ -28,6 +28,7 @@ void on_screen_reset(){
 void kmain(){
     // Initialize critical system components
     init_gdt();                   // Set up Global Descriptor Table
+    //set_up_gtd();
     init_idt();                   // Set up Interrupt Descriptor Table
     init_pic();                   // Initialize Programmable Interrupt Controller
     
@@ -50,37 +51,39 @@ void kmain(){
     init_root();
     
     
-    print("          ,-.----.               ,----..                \n");
-    print("  .--.--.   \\    /  \\             /   /   \\    .--.--.    \n");
-    print(" /  /    '. |   :    \\           /   .     :  /  /    '.  \n");
-    print("|  :  /`. / |   |  .\\ :         .   /   ;.  \\|  :  /`. /  \n");
-    print(";  |  |--`  .   :  |: |        .   ;   /  ` ;;  |  |--`   \n");
-    print("|  :  ;_    |   |   \\ :        ;   |  ; \\ ; ||  :  ;_     \n");
-    print(" \\  \\    `. |   : .   /        |   :  | ; | ' \\  \\    `.  \n");
-    print("  `----.   \\;   | |`-'         .   |  ' ' ' :  `----.   \\ \n");
-    print("  __ \\  \\  ||   | ;            '   ;  \\; /  |  __ \\  \\  | \n");
-    print(" /  /`--'  /:   ' |             \\   \\  ',  /  /  /`--'  / \n");
-    print("'--'.     / :   : :              ;   :    /  '--'.     /  \n");
-    print("  `--'---'  |   | :               \\   \\ .'     `--'---'   \n");
-    print("            `---'.|                `---`                   \n");
-    print("              `---`                         \n");
-    // Configure shell
+    // print("          ,-.----.               ,----..                \n");
+    // print("  .--.--.   \\    /  \\             /   /   \\    .--.--.    \n");
+    // print(" /  /    '. |   :    \\           /   .     :  /  /    '.  \n");
+    // print("|  :  /`. / |   |  .\\ :         .   /   ;.  \\|  :  /`. /  \n");
+    // print(";  |  |--`  .   :  |: |        .   ;   /  ` ;;  |  |--`   \n");
+    // print("|  :  ;_    |   |   \\ :        ;   |  ; \\ ; ||  :  ;_     \n");
+    // print(" \\  \\    `. |   : .   /        |   :  | ; | ' \\  \\    `.  \n");
+    // print("  `----.   \\;   | |`-'         .   |  ' ' ' :  `----.   \\ \n");
+    // print("  __ \\  \\  ||   | ;            '   ;  \\; /  |  __ \\  \\  | \n");
+    // print(" /  /`--'  /:   ' |             \\   \\  ',  /  /  /`--'  / \n");
+    // print("'--'.     / :   : :              ;   :    /  '--'.     /  \n");
+    // print("  `--'---'  |   | :               \\   \\ .'     `--'---'   \n");
+    // print("            `---'.|                `---`                   \n");
+    // print("              `---`                         \n");
+    // // Configure shell
 
-    print("WARNING\n");
-    print("This operating system has full, unristricted control over your device.Runnig this OS may:");
-    print("1. Access to all memory and storage.\n");
-    print("2. Control over all hardware components(e.g. CPU, GPU, disk,peripherals).\n");
-    print("Runnig this OS without care may lead to unintended data loss or damage to your device.\n");
-    set_shell_prompt("\n$p>");
-    print("AUTHOR:SANJAY PAUDEL\n");
+    // print("WARNING\n");
+    // print("This operating system has full, unristricted control over your device.Runnig this OS may:");
+    // print("1. Access to all memory and storage.\n");
+    // print("2. Control over all hardware components(e.g. CPU, GPU, disk,peripherals).\n");
+    // print("Runnig this OS without care may lead to unintended data loss or damage to your device.\n");
+     set_shell_prompt("$p>");
+    // print("AUTHOR:SANJAY PAUDEL\n");
 
-    cpp_fun();
+  
     printc(get_shell_prompt(), GREEN); // Display the shell prompt in green
 
     // Subscribe to screen reset event to redraw the prompt
     subscribe_to_event(get_event(SCREEN_RESET_EVENT), on_screen_reset);
     
     //dispacth system ready event 
+
+      main();
      
 
     // Finalize display setup

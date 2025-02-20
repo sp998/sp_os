@@ -6,7 +6,7 @@ LD = ld
 
 # Compilation flags
 CFLAGS = -m32 -ffreestanding -fno-builtin -fno-stack-protector -c -Iinclude
-CXXFLAGS = -m32 -ffreestanding -fno-builtin -fno-stack-protector -fno-exceptions -fno-rtti -c -Iinclude
+CXXFLAGS = -m32 -ffreestanding -fno-builtin -fno-stack-protector -fno-exceptions -fno-rtti -c -Iinclude 
 ASFLAGS = -f elf
 LDFLAGS = -m32 -nostdlib -T link.ld -melf_i386
 

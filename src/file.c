@@ -8,6 +8,7 @@
 File* current_directory = NULL;
 File* root=NULL;
 
+uint32_t last_offset = 0;
 
 
 File* create_directory(char* name){
@@ -76,6 +77,9 @@ void add_directory(File* rootFile,char* name){
 }
 void add_file(File* rootFile,char* name){
    File* currentFile = create_file(name);
+   currentFile->offset = last_offset;
+   currentFile->size = 512;
+   last_offset+=512;
 
    File* current = rootFile;
    while (current->next!=NULL)
@@ -140,8 +144,17 @@ File* find_file(File* rootFile,char* name){
 File* current = rootFile;
     while (current!=NULL)
     {
-        if(strcmp(current->name,name)==0){
+        if(current->is_root || current->parent !=rootFile || (current->level != (rootFile->level+1))){
+            current=current->next;
+            continue;
+        }
+        if(current->ext!=NULL){
+        if(strcmp(strcombine(strcombine(current->name,"."),current->ext),name)==0){
             return current;
+        }}else{
+            if(strcmp(current->name,name)==0){
+            return current;
+        }
         }
         current= current->next;
     }

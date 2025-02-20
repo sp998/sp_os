@@ -6,13 +6,13 @@
 typedef struct FileEntry{
  char* name;
  char* ext;
- uint16_t startLocation;
+ uint32_t offset;
+ uint32_t size;
  struct FileEntry *next;
  bool is_directory;
  bool is_root;
  uint32_t level;
  struct  FileEntry *parent;
-
 } File;
 
 

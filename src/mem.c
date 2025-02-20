@@ -12,6 +12,7 @@ void init_malloc(){
 }
 
 void* malloc(size_t size){
+    
     MemBlock* current =freeList;
     size+=sizeof(MemBlock);
     while (current)
