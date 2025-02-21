@@ -88,4 +88,6 @@ void kmain(){
 
     // Finalize display setup
     update_display();             // Refresh the display with initial content
+
+    
 }

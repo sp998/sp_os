@@ -20,3 +20,11 @@ gdt_flush:
 
 flush:
     ret
+
+
+global tss_flush
+
+tss_flush:
+    mov eax,0x2B
+    ltr ax
+    ret
