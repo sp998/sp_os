@@ -157,7 +157,7 @@ void check_scroll(){
     if((height-1)>ROWS){
    
     
-        full_scroll();
+        scroll_up();
         show_buffer();
        
    }
@@ -501,7 +501,7 @@ void scroll_up(){
     if(extra_rows<=0){
         return;
     }
-
+    
     int scroll_amount = (extra_rows/scroll_size);
     if(scroll_amount<abs(current_height)+2){
         m_cursor_move();

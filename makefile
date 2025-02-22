@@ -6,7 +6,7 @@ LD = ld
 
 # Compilation flags
 CFLAGS = -m32 -ffreestanding -fno-builtin -fno-stack-protector -c -Iinclude
-CXXFLAGS = -m32 -ffreestanding -fno-builtin -fno-stack-protector -fno-exceptions -fno-rtti -c -Iinclude 
+CXXFLAGS = -m32 -ffreestanding -fno-builtin -fno-stack-protector -fno-exceptions -fno-rtti -c -Iinclude
 ASFLAGS = -f elf
 LDFLAGS = -m32 -nostdlib -T link.ld -melf_i386
 
@@ -16,14 +16,16 @@ BUILD_DIR := build
 INCLUDE_DIR := include
 ISO_DIR := iso
 
-# Source files
-C_SOURCES := $(wildcard $(SRC_DIR)/*.c)
-CXX_SOURCES := $(wildcard $(SRC_DIR)/*.cpp)
-ASM_SOURCES := $(wildcard $(SRC_DIR)/*.s)
+# Find all source files recursively
+C_SOURCES := $(shell find $(SRC_DIR) -type f -name "*.c")
+CXX_SOURCES := $(shell find $(SRC_DIR) -type f -name "*.cpp")
+ASM_SOURCES := $(shell find $(SRC_DIR) -type f -name "*.s")
 
-# Object files
-OBJECTS := $(patsubst $(SRC_DIR)/%, $(BUILD_DIR)/%, \
-    $(C_SOURCES:.c=.o) $(CXX_SOURCES:.cpp=.o) $(ASM_SOURCES:.s=.o))
+
+# Convert source file paths to object file paths in BUILD_DIR while preserving directory structure
+OBJECTS := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(C_SOURCES)) \
+           $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(CXX_SOURCES)) \
+           $(patsubst $(SRC_DIR)/%.s,$(BUILD_DIR)/%.o,$(ASM_SOURCES))
 
 # Output files
 ISO_FILE := os.iso
@@ -35,14 +37,17 @@ all: $(BUILD_DIR)/kernel.elf
 $(BUILD_DIR)/kernel.elf: $(OBJECTS)
 	$(LD) $(LDFLAGS) $(OBJECTS) -o $@
 
-# Compilation rules
+# Ensure object file directories exist before compiling
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
+	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
+	mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) $< -o $@
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.s
+	mkdir -p $(dir $@)
 	$(AS) $(ASFLAGS) $< -o $@
 
 # Create ISO
@@ -75,6 +80,6 @@ download:
 
 # Clean build files
 clean:
-	rm -rf $(BUILD_DIR)/*.o $(BUILD_DIR)/kernel.elf $(ISO_FILE) $(DISK_IMAGE) $(ISO_DIR)/boot/kernel.elf
+	rm -rf $(BUILD_DIR) $(ISO_FILE) $(DISK_IMAGE) $(ISO_DIR)/boot/kernel.elf
 
 .PHONY: all os.iso run clean download create-disk flash

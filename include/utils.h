@@ -1,6 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 #include<stddef.h>
+#include<stdint.h>
 
 // Custom itoa function
 void itoa(int num, char *str);
@@ -16,4 +17,12 @@ void split_name_ext(char* scr,char* name,char* ext);
 // Function to split a string into tokens
 int split_string(const char *str, char delimiter, char tokens[][20], int max_tokens);
 extern void switch_to_usermode();
+struct InterruptRegisters{
+    uint32_t cr2;
+    uint32_t ds;
+    uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax;
+    uint32_t int_no, err_code;
+    uint32_t eip, cs, eflags, useresp, ss;
+
+};
 #endif
