@@ -174,7 +174,6 @@ void irq_handler(struct InterruptRegisters * regs)
 {
     void (*handler)(struct InterruptRegisters *);
     handler = irq_routines[regs->int_no - 32];
-   
     if(handler){
         handler(regs);
     }

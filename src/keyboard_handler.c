@@ -1,8 +1,12 @@
 #include<io.h>
 #include<commands.h>
+#include<utils.h>
+#include<idt.h>
 #define KEYBOARD_DATA_PORT 0x60
 #define PIC1_COMMAND 0x20
 #define PIC_EOI 0x20
+
+
 
 
 void keyboard_isr_handler() {
@@ -66,3 +70,5 @@ void keyboard_isr_handler() {
      show_buffer();
     outb(PIC1_COMMAND, PIC_EOI); // Send end-of-interrupt (EOI) signal
 }
+
+

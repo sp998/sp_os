@@ -8,6 +8,7 @@
 #include <file.h>
 #include <idt.h>
 #include <timer.h>
+#include <kernel/drivers/keyboard.h>
 
 
 #ifdef __cplusplus
@@ -28,20 +29,18 @@ void on_screen_reset(){
 
 void kmain(){
     // Initialize critical system components
-    init_gdt();                   // Set up Global Descriptor Table
-    //set_up_gtd();
-
-    //init_idt();                   // Set up Interrupt Descriptor Table
-    //init_pic();                   // Initialize Programmable Interrupt Controller
+    init_gdt();   // Set up Global Descriptor Table
     initIdt();
     init_mem_disk();
     init_malloc();
     init_root();
     init_system_events();
     init_timer();
+    init_keyboard();
+    printc("$p>",GREEN);
 
     // Finalize display setup
-    update_display();             // Refresh the display with initial content
+    update_display();            
 
 
 }

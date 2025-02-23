@@ -9,9 +9,7 @@ static uint32_t ticks = 0;
 void onIRQ0(struct InterruptRegisters *regs)
 {
     ticks++;
-    printc("Timer Ticked",WHITE);
-    update_display();
-   
+    
 }
 void init_timer()
 {
