@@ -9,6 +9,8 @@ extern void tss_flush();
 struct gdt_entry_struct gdt[6];
 struct gdt_ptr_struct gdt_ptr;
 struct tss_entry_struct tss_entry;
+extern uint8_t kernel_stack[];
+#define KERNEL_STACK_SIZE 0x4096
 
 void init_gdt() {
     gdt_ptr.limit = (sizeof(struct gdt_entry_struct) * 6) - 1;
@@ -18,7 +20,8 @@ void init_gdt() {
     setGdtGate(2, 0, 0xFFFFFFFF, 0x92, 0xCF); // Data segment
     setGdtGate(3, 0, 0xFFFFFFFF, 0xFA, 0xCF); // User mode code segment
     setGdtGate(4, 0, 0xFFFFFFFF, 0xF2, 0xCF); // User mode data segment
-    writeTSS(5,0x10,0x0); // TSS
+    uint32_t stack = (uint32_t)kernel_stack + KERNEL_STACK_SIZE;
+    writeTSS(5,0x10,stack); // TSS
     gdt_flush(&gdt_ptr); 
     tss_flush();
 }

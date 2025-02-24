@@ -16,7 +16,6 @@ char* strcombine(const char* src1,const char* scr2);
 void split_name_ext(char* scr,char* name,char* ext);
 // Function to split a string into tokens
 int split_string(const char *str, char delimiter, char tokens[][20], int max_tokens);
-extern void switch_to_usermode();
 void outPortB(uint16_t port, uint8_t value);
 char inPortB(uint16_t port);
 struct InterruptRegisters{

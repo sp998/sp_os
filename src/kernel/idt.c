@@ -2,6 +2,7 @@
 #include <io.h>
 #include <stdbool.h>
 
+
 #define PIC1_COMMAND 0x20
 #define PIC2_COMMAND 0xA0
 
@@ -84,8 +85,8 @@ void initIdt()
     setIdtGate(47, (uint32_t)irq15, 0x08, 0x8E);
 
 
-    setIdtGate(128, (uint32_t)isr128, 0x08, 0x8E); //System Calls
-    setIdtGate(177, (uint32_t)isr177, 0x08, 0x8E); //System Calls
+    setIdtGate(128, (uint32_t)isr128, 0x08, 0xEE); //System Calls
+    setIdtGate(177, (uint32_t)isr177, 0x08, 0xEE); //System Calls
 
     idt_flush((uint32_t)&idt_ptr);
 }
@@ -97,7 +98,7 @@ void setIdtGate(uint8_t num, uint32_t base, uint16_t selector, uint8_t flags)
     idt_entries[num].base_high = (base >> 16) & 0xFFFF;
     idt_entries[num].selector = selector;
     idt_entries[num].always0 = 0;
-    idt_entries[num].flags = flags|0X60;
+    idt_entries[num].flags = flags;
 }
 
 void *irq_routines[16] = {
@@ -141,21 +142,24 @@ unsigned char *exception_messages[] = {
     "Reserved"
 };
 
-bool int_occured = false;
 
 void isr_handler(struct InterruptRegisters * regs)
 {
     if(regs->int_no <32){
         
-        
             print(exception_messages[regs->int_no]);
+            print(":");
             print_number(regs->int_no);
             print("\nException. System Halted!\n");
             update_display();
-            int_occured = true;
-        
-       
+            for(;;);
     }
+    if(regs->int_no == 128){
+        //System Calls
+        print("System Call Occurred\n");
+        update_display();
+    }
+
 }
 
 
@@ -174,6 +178,7 @@ void irq_handler(struct InterruptRegisters * regs)
 {
     void (*handler)(struct InterruptRegisters *);
     handler = irq_routines[regs->int_no - 32];
+
     if(handler){
         handler(regs);
     }

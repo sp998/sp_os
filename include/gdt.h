@@ -56,5 +56,6 @@ void setGdtGate(uint32_t num,
     uint8_t flags);
 
 void writeTSS(uint32_t num, uint16_t ss0, uint32_t esp0);
+extern void switch_to_user_mode();
 
 #endif

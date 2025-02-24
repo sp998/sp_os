@@ -13,8 +13,6 @@ gdt_flush:
     mov gs, eax
     mov ss,eax
 
-    
-
     ; Jump to Kernel code segment
     jmp 0x08:flush
 

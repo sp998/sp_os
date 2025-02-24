@@ -8,6 +8,7 @@
 #include <file.h>
 #include <idt.h>
 #include <timer.h>
+#include <gdt.h>
 #include <kernel/drivers/keyboard.h>
 
 
@@ -22,6 +23,15 @@ void set_up_gtd();
 }
 #endif
 
+void make_sys_call();
+
+
+
+void user_main(){
+make_sys_call(); // makes the system call
+__asm__ volatile("cli"); // this thing is not allowed in user mode
+while (1);
+}
 
 void on_screen_reset(){
  printc(get_shell_prompt(),GREEN);
@@ -29,18 +39,27 @@ void on_screen_reset(){
 
 void kmain(){
     // Initialize critical system components
+    
     init_gdt();   // Set up Global Descriptor Table
     initIdt();
-    init_mem_disk();
-    init_malloc();
-    init_root();
-    init_system_events();
-    init_timer();
+    printc("In Kernel mode\n",GREEN);
+    //init_mem_disk();
+    //init_malloc();
+    //init_root();
+    //init_system_events();
+    //init_timer();
     init_keyboard();
-    printc("$p>",GREEN);
 
     // Finalize display setup
-    update_display();            
+    //update_display();
+    printc("Entering user mode\n",GREEN);
+    switch_to_user_mode();
+  
+  
+       
+    
+    
+  
 
 
 }

@@ -1,6 +1,7 @@
 KERNEL_STACK_SIZE equ  4096
 
 global outb
+global kernel_stack
 
 global loader 
     
