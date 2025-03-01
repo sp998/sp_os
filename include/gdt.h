@@ -57,7 +57,5 @@ void setGdtGate(uint32_t num,
 
 void writeTSS(uint32_t num, uint16_t ss0, uint32_t esp0);
 extern void switch_to_user_mode();
-extern uint8_t kernel_stack[];
-#define KERNEL_STACK_SIZE 0x4096
 
 #endif

@@ -10,6 +10,10 @@ struct gdt_entry_struct gdt[6];
 struct gdt_ptr_struct gdt_ptr;
 struct tss_entry_struct tss_entry;
 
+extern uint8_t kernel_stack[];
+#define KERNEL_STACK_SIZE 0x4096
+
+
 
 void init_gdt() {
     gdt_ptr.limit = (sizeof(struct gdt_entry_struct) * 6) - 1;

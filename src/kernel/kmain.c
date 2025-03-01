@@ -42,7 +42,7 @@ void my_process(){
 
 
 void user_main(){
-    make_sys_call();
+    init_gdt();
    //start_process((uint32_t)my_process, (uint32_t)user_stack + USER_STACK_SIZE);
   while(1);
 }
