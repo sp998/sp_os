@@ -10,7 +10,6 @@
 #include <timer.h>
 #include <gdt.h>
 #include <kernel/drivers/keyboard.h>
-#include <kernel/syscalls/info_syscall.h>
 
 
 #ifdef __cplusplus
@@ -26,16 +25,30 @@ void set_up_gtd();
 
 #define USER_STACK_SIZE 1024
 char user_stack[USER_STACK_SIZE];
-extern int make_sys_call();
+extern void make_sys_call();
 extern void start_process(uint32_t eip, uint32_t esp);
 void my_process();
 
 void second_process(){
     printc("In second user mode\n",GREEN);
     update_display();
+    make_sys_call();
+
     while(1);
 }
 void my_process(){
+    char* test = malloc(sizeof(char)*200);
+    if(test==NULL){
+        print("Empty");
+        update_display();
+        return;
+    }
+    test[0] = 'h';
+    test[1] = 'i';
+    test[2]  = '\0';
+
+    print(test);
+    update_display();
     while(1);
 }
 
@@ -64,13 +77,10 @@ void kmain(){
     //init_system_events();
     //init_timer();
     init_keyboard();
-    init_syscall_info();
 
     // Finalize display setup
     //update_display();
     init_malloc();
-    update_display();
-
 
    
     switch_to_user_mode();
