@@ -23,6 +23,9 @@ void irq_handler(struct InterruptRegisters * regs);
 
 void irq_uninstall_handler(int irq);
 void irq_install_handler(int irq, void (*handler)(struct InterruptRegisters *));
+void install_syscall_handler(int syscall_no, void (*handler)(struct InterruptRegisters *));
+
+
 
 
 

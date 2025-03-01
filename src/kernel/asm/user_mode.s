@@ -2,9 +2,10 @@ global switch_to_user_mode
 extern user_main
 
 
-section .data
+section .bss
+    align 4
     user_stack:
-        resb 4096       ; Dedicated user stack (4KB)
+        resb 32768    ; Allocate 32KB for user stack
     user_stack_top:
 
 section .text

@@ -145,6 +145,12 @@ unsigned char *exception_messages[] = {
 };
 
 
+void *syscall_routines[10] = {0};
+
+void install_syscall_handler(int syscall_no, void (*handler)(struct InterruptRegisters *)){
+      syscall_routines[syscall_no]=handler;
+}
+
 void isr_handler(struct InterruptRegisters * regs)
 {
     if(regs->int_no <32){
@@ -158,15 +164,12 @@ void isr_handler(struct InterruptRegisters * regs)
     }
     if(regs->int_no == 128){
         //System Calls
-        print("System Call Occurred\n");
-        update_display();
-        if(regs->eax==1){
-            print("starting new process\n");
-            update_display();
-            init_keyboard();
-            trigger_process(regs->ebx, regs->ecx);
-
+        void (*handler)(struct InterruptRegisters *);
+        handler = syscall_routines[regs->eax];
+        if(handler){
+            handler(regs);
         }
+       
     }
 
 }
@@ -177,6 +180,8 @@ void irq_install_handler(int irq, void (*handler)(struct InterruptRegisters *))
 {
     irq_routines[irq] = handler;
 }
+
+
 
 void irq_uninstall_handler(int irq)
 {

@@ -1,7 +1,9 @@
-KERNEL_STACK_SIZE equ  4096
+KERNEL_STACK_SIZE equ  32768;32KB
+
 
 global outb
 global kernel_stack
+global user_kernel_stack
 
 global loader 
     
