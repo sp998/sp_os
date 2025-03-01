@@ -10,13 +10,10 @@ align 4
     kernel_stack:
         resb KERNEL_STACK_SIZE
 
-
-
-
 section .text
 align 4
 loader: 
- 
+    mov esp, kernel_stack + KERNEL_STACK_SIZE
     extern kmain
     call kmain
     

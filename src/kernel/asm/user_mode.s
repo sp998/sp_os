@@ -40,8 +40,6 @@ switch_to_user_mode:
 
 global make_sys_call
 make_sys_call:
-  
-    mov eax, 1
-    mov ebx, 2
+    mov eax, 2
     int 0x80
     ret

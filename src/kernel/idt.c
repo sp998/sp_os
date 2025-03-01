@@ -1,6 +1,7 @@
 #include <idt.h>
 #include <io.h>
 #include <stdbool.h>
+#include<kernel/drivers/keyboard.h>
 
 
 #define PIC1_COMMAND 0x20
@@ -13,6 +14,7 @@
 struct idt_entry_struct idt_entries[256];
 struct idt_ptr_struct idt_ptr;
 extern void idt_flush(uint32_t);
+extern void trigger_process(uint32_t eip, uint32_t esp);
 
 void initIdt()
 {
@@ -158,6 +160,13 @@ void isr_handler(struct InterruptRegisters * regs)
         //System Calls
         print("System Call Occurred\n");
         update_display();
+        if(regs->eax==1){
+            print("starting new process\n");
+            update_display();
+            init_keyboard();
+            trigger_process(regs->ebx, regs->ecx);
+
+        }
     }
 
 }
