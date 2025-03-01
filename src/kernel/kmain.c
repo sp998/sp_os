@@ -34,55 +34,9 @@ void myhandler(struct InterruptRegisters* regs){
     print("syscall\n");
     update_display();
 }
-void myhandler1(struct InterruptRegisters* regs){
-    print("syscall");
-    update_display();
-}void myhandler2(struct InterruptRegisters* regs){
-    print("syscall");
-    update_display();
-}void myhandler3(struct InterruptRegisters* regs){
-    print("syscall");
-    update_display();
-}void myhandler4(struct InterruptRegisters* regs){
-    print("syscall");
-    update_display();
-}void myhandler5(struct InterruptRegisters* regs){
-    print("syscall");
-    update_display();
-}void myhandler6(struct InterruptRegisters* regs){
-    print("syscall");
-    update_display();
-}void myhandler7(struct InterruptRegisters* regs){
-    print("syscall");
-    update_display();
-}void myhandler8(struct InterruptRegisters* regs){
-    print("syscall");
-    update_display();
-}void myhandler9(struct InterruptRegisters* regs){
-    print("syscall");
-    update_display();
-}void myhandler10(struct InterruptRegisters* regs){
-    print("syscall");
-    update_display();
-}void myhandler11(struct InterruptRegisters* regs){
-    print("syscall");
-    update_display();
-}void myhandler12(struct InterruptRegisters* regs){
-    print("syscall");
-    update_display();
-}void myhandler13(struct InterruptRegisters* regs){
-    print("syscall");
-    update_display();
-}void myhandler14(struct InterruptRegisters* regs){
-    print("syscall");
-    update_display();
-}void myhandler15(struct InterruptRegisters* regs){
-    print("syscall");
-    update_display();
-}
+
 
 void my_process(){
-
 
     update_display();
     while(1);
