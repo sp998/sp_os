@@ -14,7 +14,7 @@
 struct idt_entry_struct idt_entries[256];
 struct idt_ptr_struct idt_ptr;
 extern void idt_flush(uint32_t);
-extern void trigger_process(uint32_t eip, uint32_t esp);
+
 
 void initIdt()
 {

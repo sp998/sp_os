@@ -10,6 +10,7 @@
 #include <timer.h>
 #include <gdt.h>
 #include <kernel/drivers/keyboard.h>
+#include <kernel/syscalls/start_process.h>
 
 
 #ifdef __cplusplus
@@ -31,22 +32,24 @@ void my_process();
 
 void myhandler(struct InterruptRegisters* regs){
     print("syscall\n");
+   
     update_display();
 }
 
 
 void my_process(){
-    
-    update_display();
+    int a =10;
+    int b=20;
+    int c =30;
+    int d =23;
+    make_sys_call();
     while(1);
 }
 
 
 
 void user_main(){
-    make_sys_call();
-
-    //start_process((uint32_t)my_process, (uint32_t)user_stack + USER_STACK_SIZE);
+    start_process((uint32_t)my_process, (uint32_t)user_stack + USER_STACK_SIZE);
     while(1);
 }
 
@@ -71,6 +74,7 @@ void kmain(){
     //init_system_events();
     //init_timer();
     init_keyboard();
+    init_syscall_start_process();
 
     // Finalize display setup
     //update_display();
