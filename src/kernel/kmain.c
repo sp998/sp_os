@@ -1,6 +1,6 @@
-#include <io.h>
 #include <utils.h>
 #include <ide.h>
+#include <io.h>
 #include <mem.h>
 #include <memdisk.h>
 #include <system_events.h>
@@ -10,7 +10,6 @@
 #include <timer.h>
 #include <gdt.h>
 #include <kernel/drivers/keyboard.h>
-
 
 
 #ifdef __cplusplus
@@ -37,7 +36,7 @@ void myhandler(struct InterruptRegisters* regs){
 
 
 void my_process(){
-
+    
     update_display();
     while(1);
 }
@@ -46,27 +45,16 @@ void my_process(){
 
 void user_main(){
     make_sys_call();
-    make_sys_call();
-    make_sys_call();
-    make_sys_call();
-    make_sys_call();
-    make_sys_call();
-    make_sys_call();
-    make_sys_call();
-    make_sys_call();
-    make_sys_call();
-    make_sys_call();
-    make_sys_call();
 
-   //start_process((uint32_t)my_process, (uint32_t)user_stack + USER_STACK_SIZE);
-  while(1);
+    //start_process((uint32_t)my_process, (uint32_t)user_stack + USER_STACK_SIZE);
+    while(1);
 }
 
 
 void on_screen_reset(){
+
  printc(get_shell_prompt(),GREEN);
 }
-
 
 void kmain(){
     // Initialize critical system components

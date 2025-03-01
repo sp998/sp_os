@@ -72,8 +72,7 @@ flash: os.iso
 
 # Run OS in QEMU
 run: build-os
-	qemu-system-i386 -m 512M -cdrom os.iso
-
+	./start_qemu.sh
 # Download ISO to Windows (WSL)
 download:
 	cp $(ISO_FILE) /mnt/c/Users/Thinkpad/Downloads
