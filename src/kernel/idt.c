@@ -108,6 +108,8 @@ void *irq_routines[16] = {
     0,0,0,0,0,0,0,0
 };
 
+void* syscall_routines[10] = {0};
+
 unsigned char *exception_messages[] = {
     "Division By Zero",
     "Debug",
@@ -157,16 +159,12 @@ void isr_handler(struct InterruptRegisters * regs)
             for(;;);
     }
     if(regs->int_no == 128){
-        //System Calls
-        print("System Call Occurred\n");
-        update_display();
-        if(regs->eax==1){
-            print("starting new process\n");
-            update_display();
-            init_keyboard();
-            trigger_process(regs->ebx, regs->ecx);
+         void(*syscall_handler)(struct InterruptRegisters*);
+         syscall_handler = syscall_routines[regs->eax];
 
-        }
+         if(syscall_handler){
+            syscall_handler(regs);
+         }
     }
 
 }
@@ -176,6 +174,16 @@ void isr_handler(struct InterruptRegisters * regs)
 void irq_install_handler(int irq, void (*handler)(struct InterruptRegisters *))
 {
     irq_routines[irq] = handler;
+}
+
+void install_syscall_handler(int syscall_no, void (*handler)(struct InterruptRegisters *))
+{
+    syscall_routines[syscall_no] = handler;
+}
+
+void uninstall_syscall_handler(int syscall_no)
+{
+    syscall_routines[syscall_no]=0;
 }
 
 void irq_uninstall_handler(int irq)
