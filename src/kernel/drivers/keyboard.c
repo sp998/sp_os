@@ -1,5 +1,6 @@
 #include <kernel/drivers/keyboard.h>
 #include <idt.h>
+#include <stdbool.h>
 
 
 void init_keyboard()
@@ -8,9 +9,9 @@ void init_keyboard()
 
 }
 void keyboard_handler(struct InterruptRegisters *regs)
-{
-    char scancode = inPortB(0x60)&0x7F;
-    char pressed = inPortB(0x60)&0x80;
+{   char rawcode = inPortB(0x60);
+    char scancode =rawcode&0x7F;
+    bool pressed = (rawcode & 0x80) == 0; 
     print("code:");
     print_number(scancode);
     print(" pressed:");
