@@ -1,7 +1,7 @@
 #include <kernel/drivers/keyboard.h>
 #include <idt.h>
 #include <stdbool.h>
-
+#include <sysvars.h>
 
 void init_keyboard()
 {
@@ -12,10 +12,17 @@ void keyboard_handler(struct InterruptRegisters *regs)
 {   char rawcode = inPortB(0x60);
     char scancode =rawcode&0x7F;
     bool pressed = (rawcode & 0x80) == 0; 
-    print("code:");
-    print_number(scancode);
-    print(" pressed:");
-    print_number(pressed);
-    print("\n");
-    update_display();
+    // print("code:");
+    // print_number(scancode);
+    // print(" pressed:");
+    // print_number(pressed);
+    // print("\n");
+    // update_display();
+
+    if(scancode==28&&pressed){
+        set_current_key('E');
+        set_key_pressed(true);
+    }else{
+        set_key_pressed(false);
+    }
 }

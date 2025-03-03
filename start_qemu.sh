@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# Start QEMU
-qemu-system-i386 -m 512M -cdrom os.iso &
+qemu-system-i386 -m 512M -cdrom os.iso 
+
+
 
 # Give QEMU some time to start
 sleep 2

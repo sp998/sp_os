@@ -17,6 +17,8 @@ align 4
 loader: 
     mov esp, kernel_stack + KERNEL_STACK_SIZE
     extern kmain
+    push ebx
+    push eax
     call kmain
     
     .loop:

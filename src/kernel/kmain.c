@@ -11,6 +11,9 @@
 #include <gdt.h>
 #include <kernel/drivers/keyboard.h>
 #include <kernel/syscalls/start_process.h>
+#include <kernel/syscalls/read_key.h>
+#include <multiboot.h>
+#include <kernel/drivers/vga.h>
 
 
 #ifdef __cplusplus
@@ -27,8 +30,11 @@ void set_up_gtd();
 #define USER_STACK_SIZE 1024
 char user_stack[USER_STACK_SIZE];
 extern void make_sys_call();
+extern char read_key();
 extern void start_process(uint32_t eip, uint32_t esp);
 void my_process();
+
+
 
 void myhandler(struct InterruptRegisters* regs){
     print("syscall\n");
@@ -38,20 +44,32 @@ void myhandler(struct InterruptRegisters* regs){
 
 
 void my_process(){
-    int a =10;
-    int b=20;
-    int c =30;
-    int d =23;
-    make_sys_call();
+    print("Inside process\n");
+    update_display();
+    char key,key2;
+    
+    key = read_key();
+    print_char(key);
+    update_display();
+
+    key2 = read_key();
+    print_char(key2);
+    update_display();
+
+    update_display();
     while(1);
 }
 
 
 
 void user_main(){
+    print("In user mode\n");
+    update_display();
     start_process((uint32_t)my_process, (uint32_t)user_stack + USER_STACK_SIZE);
     while(1);
 }
+
+
 
 
 void on_screen_reset(){
@@ -59,7 +77,7 @@ void on_screen_reset(){
  printc(get_shell_prompt(),GREEN);
 }
 
-void kmain(){
+void kmain(uint32_t magic,multiboot_info_t* bootInfo){
     // Initialize critical system components
     
     init_gdt();   // Set up Global Descriptor Table
@@ -75,13 +93,26 @@ void kmain(){
     //init_timer();
     init_keyboard();
     init_syscall_start_process();
+    init_syscall_read_key();
+    
+    print_number(bootInfo->vbe_mode);
+    print("\n");
+    print_hex(bootInfo->framebuffer_addr_low);
+    print("\n");
+    update_display();
+
+
 
     // Finalize display setup
     //update_display();
     init_malloc();
-    
-   
+     
+    setVgaMode(320,200,8);
+
+    for(uint32_t y=0;y<200;y++)
+        for(uint32_t x=0;x<320;x++)
+            putPixel(x,y,0,0,0xA8);
 
    
-    switch_to_user_mode();
+    //switch_to_user_mode();
 }
