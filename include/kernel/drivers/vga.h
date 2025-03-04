@@ -28,5 +28,6 @@ uint8_t* getFrameBufferSegment();
 bool supportsMode(uint32_t width, uint32_t height, uint32_t colorDepth);
 bool setVgaMode(uint32_t width,uint32_t height, uint32_t colorDepth);
 void putPixel(uint32_t x, uint32_t y,uint8_t r,uint8_t g,uint8_t b);
-
+void putPixelWithIndex(uint32_t x, uint32_t y, uint8_t colorIndex);
+void setBackground(uint8_t colorIndex);
 #endif

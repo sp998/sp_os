@@ -3,6 +3,9 @@
 void putPixelWithIndex(uint32_t x, uint32_t y, uint8_t colorIndex){
 
     uint8_t* pixelAddress = getFrameBufferSegment() + WIDTH*y + x;
+    if(pixelAddress==NULL){
+        return;
+    }
      *pixelAddress = colorIndex;
 
 }
@@ -11,6 +14,20 @@ uint8_t getColorIndex(uint8_t r,uint8_t g,uint8_t b){
      if(r==0x00&&g==0x00&&b==0xA8){
         return 0x01;
      }
+}
+
+
+void setBackground(uint8_t colorIndex){
+    uint8_t *frameBuffer = getFrameBufferSegment();  // Get framebuffer segment
+    if(frameBuffer==NULL){
+        return;
+    }
+
+    // Fill the framebuffer with the color index
+    uint32_t totalPixels = 200 * 320;  // For a 320x200 screen
+    for(uint32_t i = 0; i < totalPixels; i++) {
+        frameBuffer[i] = colorIndex;  // Set each pixel to the color index
+    }
 }
 
 void writeRegisters(uint8_t *registers)

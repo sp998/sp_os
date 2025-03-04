@@ -45,6 +45,21 @@ void itoa(int num, char *str){
 }
 
 
+uint32_t min(uint32_t a, uint32_t b){
+    if(a<b){
+        return a;
+    }else{
+        return b;
+    }
+}
+
+uint32_t max(uint32_t a, uint32_t b){
+    if(a<b){
+        return b;
+    }else{
+        return a;
+    }
+}
 
 // Function to split a string into tokens
 int split_string(const char *str, char delimiter, char tokens[][20], int max_tokens) {
