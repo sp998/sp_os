@@ -14,6 +14,7 @@
 #include <kernel/syscalls/read_key.h>
 #include <multiboot.h>
 #include <kernel/drivers/vga.h>
+#include <kernel/drivers/mouse.h>
 
 
 #ifdef __cplusplus
@@ -148,6 +149,7 @@ void kmain(uint32_t magic,multiboot_info_t* bootInfo){
     //init_system_events();
     //init_timer();
     init_keyboard();
+    init_mouse();
     init_syscall_start_process();
     init_syscall_read_key();
     
@@ -165,8 +167,7 @@ void kmain(uint32_t magic,multiboot_info_t* bootInfo){
 
 
 
- 
-    
+
     
    
    
