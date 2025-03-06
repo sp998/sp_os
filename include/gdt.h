@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 struct gdt_entry_struct{
+  
     uint16_t limit_low;
     uint16_t base_low;
     uint8_t base_middle;

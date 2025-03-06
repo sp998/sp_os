@@ -6,25 +6,36 @@
 #define MOUSE_COMMAND_PORT 0x64
 #define MOUSE_DATA_PORT 0x60
 
-#define SCREEN_WIDTH  320  // Adjust based on your resolution
+#define SCREEN_WIDTH  320  
 #define SCREEN_HEIGHT 200  
 
 uint8_t buffer[3];
 uint8_t offset = 0;
 uint8_t buttons = 0;
 
+int mouse_x = SCREEN_WIDTH / 2;
+int mouse_y = SCREEN_HEIGHT / 2;
+
+uint8_t saved_bg[25];  
+int cursor_initialized = 0; 
+
+
+int left_button_pressed = 0;
+
+
 void mouse_wait(uint8_t type) {
     uint32_t timeout = 100000;
-    if (type == 0) { // Data available to read
+    if (type == 0) { 
         while (timeout--) {
             if (inPortB(MOUSE_COMMAND_PORT) & 1) return;
         }
-    } else { // Ready to send data
+    } else { 
         while (timeout--) {
             if (!(inPortB(MOUSE_COMMAND_PORT) & 2)) return;
         }
     }
 }
+
 
 void mouse_write(uint8_t value) {
     mouse_wait(1);
@@ -33,17 +44,68 @@ void mouse_write(uint8_t value) {
     outPortB(MOUSE_DATA_PORT, value);
 }
 
+
 uint8_t mouse_read() {
     mouse_wait(0);
     return inPortB(MOUSE_DATA_PORT);
 }
 
+
+void save_background(int x, int y) {
+
+    for (int i = 0; i < 5; i++) {
+        for (int j = 0; j < 5; j++) {
+            saved_bg[i * 5 + j] = getPixelColor(x + j, y + i);
+        }
+    }
+}
+
+void restore_background(int x, int y) {
+
+    for (int i = 0; i < 5; i++) {
+        for (int j = 0; j < 5; j++) {
+            putPixelWithIndex(x + j, y + i, saved_bg[i * 5 + j]);
+        }
+    }
+}
+
+
+void draw_cursor(int x, int y, uint8_t color) {
+    if (!cursor_initialized) {
+      
+        save_background(x, y);
+        cursor_initialized=1;
+        return;
+       
+    }
+
+    save_background(x, y);
+
+  
+    putPixelWithIndex(x + 2, y, color);           
+    putPixelWithIndex(x + 1, y + 1, color);      
+    putPixelWithIndex(x + 2, y + 1, color);       
+    putPixelWithIndex(x + 3, y + 1, color);      
+    putPixelWithIndex(x, y + 2, color);           
+    putPixelWithIndex(x + 1, y + 2, color);      
+    putPixelWithIndex(x + 2, y + 2, color);       
+    putPixelWithIndex(x + 3, y + 2, color);       
+    putPixelWithIndex(x + 4, y + 2, color);      
+    putPixelWithIndex(x + 1, y + 3, color);      
+    putPixelWithIndex(x + 3, y + 3, color);       
+    putPixelWithIndex(x + 2, y + 4, color);      
+
+   
+    update_display();
+}
+
+
 void init_mouse() {
-    // Enable the auxiliary device (mouse)
+
     mouse_wait(1);
     outPortB(MOUSE_COMMAND_PORT, 0xA8);
 
-    // Enable interrupts
+    
     mouse_wait(1);
     outPortB(MOUSE_COMMAND_PORT, 0x20);
     uint8_t status = inPortB(MOUSE_DATA_PORT) | 2;
@@ -52,37 +114,18 @@ void init_mouse() {
     mouse_wait(1);
     outPortB(MOUSE_DATA_PORT, status);
 
-    // Set mouse defaults
+ 
     mouse_write(0xF6);
-    mouse_read(); // Acknowledge
+    mouse_read();
 
-    // Enable the mouse
+  
     mouse_write(0xF4);
-    mouse_read(); // Acknowledge
+    mouse_read(); 
 
-    // Install the IRQ handler
+  
     irq_install_handler(12, mouse_handler);
 }
 
-// Track mouse position
-int mouse_x = SCREEN_WIDTH / 2;   // Start in center
-int mouse_y = SCREEN_HEIGHT / 2;
-
-// Function to draw a simple cursor
-void draw_cursor(int x, int y, uint8_t color) {
-    putPixelWithIndex(x, y, color);
-    putPixelWithIndex(x + 1, y, color);
-    putPixelWithIndex(x, y + 1, color);
-    putPixelWithIndex(x + 1, y + 1, color);
-}
-
-// Function to clear the cursor from the screen
-void erase_cursor(int x, int y) {
-    putPixelWithIndex(x, y, 0x00);   // Set to background color (black)
-    putPixelWithIndex(x + 1, y, 0x00);
-    putPixelWithIndex(x, y + 1, 0x00);
-    putPixelWithIndex(x + 1, y + 1, 0x00);
-}
 
 void mouse_handler(struct InterruptRegisters *regs) {
     uint8_t status = inPortB(MOUSE_COMMAND_PORT);
@@ -92,23 +135,36 @@ void mouse_handler(struct InterruptRegisters *regs) {
     offset = (offset + 1) % 3;
 
     if (offset == 0) {
-        // Erase old cursor
-        erase_cursor(mouse_x, mouse_y);
+       
 
-        // Update position
-        mouse_x += (int8_t)buffer[1]; // X movement
-        mouse_y -= (int8_t)buffer[2]; // Y is inverted
+        left_button_pressed = (buffer[0] & 0x01) != 0;
+        if(!left_button_pressed){
+            if(cursor_initialized){
+            restore_background(mouse_x, mouse_y);
+            }
+        }
+    
 
-        // Clamp values to prevent out-of-bounds movement
+       
+        mouse_x += (int8_t)buffer[1];
+        mouse_y -= (int8_t)buffer[2];
+
+     
         if (mouse_x < 0) mouse_x = 0;
         if (mouse_x >= SCREEN_WIDTH) mouse_x = SCREEN_WIDTH - 1;
         if (mouse_y < 0) mouse_y = 0;
         if (mouse_y >= SCREEN_HEIGHT) mouse_y = SCREEN_HEIGHT - 1;
 
-        // Draw new cursor
-        draw_cursor(mouse_x, mouse_y, 0xE); // Yellow cursor
+       
 
-        // Update the display
+        if (left_button_pressed) {
+            
+            draw_cursor(mouse_x, mouse_y, 0x10); 
+        } else {
+         
+            draw_cursor(mouse_x, mouse_y, 0x10); 
+        }
+
         update_display();
     }
 }

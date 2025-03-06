@@ -1,8 +1,14 @@
 #ifndef VGA_DRIVER_H
 #define VGA_DRIVER_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 #include <utils.h>
 #include <stdbool.h>
+#include <gui/font.h>
 
 #define WIDTH 320
 #define HEIGHT 200
@@ -30,4 +36,11 @@ bool setVgaMode(uint32_t width,uint32_t height, uint32_t colorDepth);
 void putPixel(uint32_t x, uint32_t y,uint8_t r,uint8_t g,uint8_t b);
 void putPixelWithIndex(uint32_t x, uint32_t y, uint8_t colorIndex);
 void setBackground(uint8_t colorIndex);
+uint8_t getPixelColor(uint32_t x, uint32_t y);
+void draw_char(int x, int y, char c, uint8_t color,uint8_t font_type);
+void draw_string(int x, int y, const char *str, uint8_t color, uint8_t font_type);
+
+#ifdef __cplusplus
+}
+#endif
 #endif

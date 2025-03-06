@@ -23,7 +23,7 @@ trigger_process:
     mov ebx,[esp+8]
     mov [stack_pointer],ebx
     ; 1. Switch to user data segments (Ring 3)
-    mov ax, 0x23          ; User data segment (GDT entry: 0x23)
+    mov ax, 0x23        ; User data segment (GDT entry: 0x23)
     mov ds, ax
     mov es, ax
     mov fs, ax
@@ -44,7 +44,7 @@ trigger_process:
 
     push 0x1B              ; User code segment (CS = 0x1B, Ring 3)
     mov eax,[instruction_pointer]
-    push eax              ; Entry point (EIP) - user process entry point
+    push eax            ; Entry point (EIP) - user process entry point
 
     ; 4. Enable interrupts and switch to user mode
     sti                    ; Enable interrupts in kernel mode
