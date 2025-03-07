@@ -73,17 +73,17 @@ extern "C" void main(){
     }
 
     canvas->SetColor(0x0f);
-    for(int i=0;i<WIDTH;i++){
-        for (int j=0;j<12;j++){
-            canvas->DrawPixel(i,j);
+    canvas->FillShape(true);
+    canvas->DrawRect(0,0,WIDTH,13);
 
-        }
-    }
     canvas->SetTextColor(0x60);
     canvas->SetFontType(FONT_5x8);
     canvas->DrawText(0,2," Home Settings Files   Tools     Help          About");
-
-
     
+    canvas->SetColor(0x21);
+
+   
+
+
 
 }

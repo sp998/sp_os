@@ -9,6 +9,7 @@ class SPCanvas{
         uint8_t fontType;
         uint8_t textColor;
         uint8_t color; 
+        bool fillShape;
 
     public:
         SPCanvas();
@@ -21,6 +22,8 @@ class SPCanvas{
         void SetColor(uint8_t colorIndex);
         void SetColor(uint8_t r, uint8_t g, uint8_t b);
         void DrawText(uint32_t x, uint32_t y, char* text);
+        void FillShape(bool value);
+        void DrawRect(uint32_t x,uint32_t y, uint32_t w,uint32_t h);
     
 };
 

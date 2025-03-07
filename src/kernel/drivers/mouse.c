@@ -73,13 +73,13 @@ void restore_background(int x, int y) {
 void draw_cursor(int x, int y, uint8_t color) {
     if (!cursor_initialized) {
       
-        save_background(x, y);
+        saveBackground();
         cursor_initialized=1;
         return;
        
     }
 
-    save_background(x, y);
+    saveBackground();
 
   
     putPixelWithIndex(x + 2, y, color);           
@@ -140,7 +140,7 @@ void mouse_handler(struct InterruptRegisters *regs) {
         left_button_pressed = (buffer[0] & 0x01) != 0;
         if(!left_button_pressed){
             if(cursor_initialized){
-            restore_background(mouse_x, mouse_y);
+            restoreBackground();
             }
         }
     
