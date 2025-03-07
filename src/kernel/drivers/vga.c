@@ -1,5 +1,8 @@
 #include <kernel/drivers/vga.h>
 
+uint8_t backgroundBuffer[320* 200];
+
+
 
 
 void putPixelWithIndex(uint32_t x, uint32_t y, uint8_t colorIndex){
@@ -64,7 +67,15 @@ void draw_string(int x, int y, const char *str, uint8_t color, uint8_t font_type
     }
 }
 
+void saveBackground()
+{
+    memcpy(backgroundBuffer,getFrameBufferSegment(),sizeof(backgroundBuffer));
+}
+void restoreBackground()
+{
+    memcpy(getFrameBufferSegment(),backgroundBuffer,sizeof(backgroundBuffer));
 
+}
 uint8_t getPixelColor(uint32_t x, uint32_t y)
 {
     uint8_t* pixelAddress = getFrameBufferSegment() + WIDTH*y + x;

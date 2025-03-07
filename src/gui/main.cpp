@@ -83,4 +83,7 @@ extern "C" void main(){
     canvas->SetFontType(FONT_5x8);
     canvas->DrawText(0,2," Home Settings Files   Tools     Help          About");
 
+
+    
+
 }
