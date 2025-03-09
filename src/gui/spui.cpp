@@ -1,6 +1,7 @@
 #include <gui/spui.h>
 
 
+
 SPCanvas::SPCanvas()
 {
     setVgaMode(320,200,8);
@@ -89,4 +90,9 @@ void SPCanvas::DrawRect(uint32_t x, uint32_t y, uint32_t w, uint32_t h)
         }
     
     }
+}
+
+void SPCanvas::RenderDisplay()
+{
+    updateDisplay();
 }

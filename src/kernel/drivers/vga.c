@@ -1,18 +1,20 @@
 #include <kernel/drivers/vga.h>
 
 uint8_t backgroundBuffer[320* 200];
+uint8_t displayBuffer[320*200];
 
 
 
 
-void putPixelWithIndex(uint32_t x, uint32_t y, uint8_t colorIndex){
-
-    uint8_t* pixelAddress = getFrameBufferSegment() + WIDTH*y + x;
-    if(pixelAddress==NULL){
-        return;
+void putPixelWithIndex(uint32_t x, uint32_t y, uint8_t colorIndex) {
+  
+    if (x >= WIDTH || y >= 200) {
+        return;  
     }
-     *pixelAddress = colorIndex;
 
+   
+    uint8_t* pixelAddress = displayBuffer + (y * WIDTH + x);  
+    *pixelAddress = colorIndex;  
 }
 uint8_t getColorIndex(uint8_t r,uint8_t g,uint8_t b){
 
@@ -23,12 +25,12 @@ uint8_t getColorIndex(uint8_t r,uint8_t g,uint8_t b){
 
 
 void setBackground(uint8_t colorIndex){
-    uint8_t *frameBuffer = getFrameBufferSegment();  // Get framebuffer segment
+    uint8_t *frameBuffer = displayBuffer;  
     if(frameBuffer==NULL){
         return;
     }
 
-    // Fill the framebuffer with the color index
+    
     uint32_t totalPixels = 200 * 320;  // For a 320x200 screen
     for(uint32_t i = 0; i < totalPixels; i++) {
         frameBuffer[i] = colorIndex;  // Set each pixel to the color index
@@ -37,45 +39,51 @@ void setBackground(uint8_t colorIndex){
 void draw_char(int x, int y, char c, uint8_t color, uint8_t font_type) {
     uint8_t width, height;
     unsigned char *font = getFont(font_type, &width, &height);
-    if (font == NULL) return;  // Handle invalid font type
+    if (font == NULL) return; 
 
-    uint32_t offset = (int)c;  // Calculate offset based on ASCII value (assuming printable characters start from 32)
+    uint32_t offset = (int)c; 
 
-    // Loop through each row of the character and draw the corresponding pixels
+    
     for (int row = 0; row < height; row++) {
-        uint8_t line = font[offset * height + row];  // Access the font data based on the offset
+        uint8_t line = font[offset * height + row]; 
 
-        // Loop through each column and draw the corresponding pixel
+      
         for (int col = 0; col < width; col++) {
-            if (line & (1 << (7 - col))) {  // Check if the bit is set
-                putPixelWithIndex(x + col, y + row, color);  // Draw pixel at (x+col, y+row)
+            if (line & (1 << (7- col))) {  
+                putPixelWithIndex(x + col, y + row, color);  
             }
         }
     }
 }
 void draw_string(int x, int y, const char *str, uint8_t color, uint8_t font_type) {
-    if (!str) return; // Check if the string is valid
+    if (!str) return;
+   
 
     uint8_t char_width, char_height;
-    unsigned char *font = getFont(font_type, &char_width, &char_height);  // Fetch font and dimensions
-    if (!font) return; // Return if font is unavailable
-
+    unsigned char *font = getFont(font_type, &char_width, &char_height);  
+    if (!font) return; 
     while (*str) {
-        draw_char(x, y, *str, color, font_type);  // Draw the current character
-        x += char_width + 1;  // Move x-coordinate by the width of the character + 1 pixel space
-        str++;  // Move to the next character
+        draw_char(x, y, *str, color, font_type);  
+        x += char_width + 1;  
+        str++; 
     }
 }
 
 void saveBackground()
 {
-    memcpy(backgroundBuffer,getFrameBufferSegment(),sizeof(backgroundBuffer));
+    memcpy(backgroundBuffer,displayBuffer,sizeof(backgroundBuffer));
 }
 void restoreBackground()
 {
-    memcpy(getFrameBufferSegment(),backgroundBuffer,sizeof(backgroundBuffer));
+    memcpy(displayBuffer,backgroundBuffer,sizeof(backgroundBuffer));
 
 }
+
+void updateDisplay(){
+    memcpy(getFrameBufferSegment(),displayBuffer,sizeof(backgroundBuffer));
+}
+
+
 uint8_t getPixelColor(uint32_t x, uint32_t y)
 {
     uint8_t* pixelAddress = getFrameBufferSegment() + WIDTH*y + x;

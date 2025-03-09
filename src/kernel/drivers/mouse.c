@@ -3,6 +3,7 @@
 #include <io.h>
 #include <kernel/drivers/vga.h>
 
+
 #define MOUSE_COMMAND_PORT 0x64
 #define MOUSE_DATA_PORT 0x60
 
@@ -15,6 +16,9 @@ uint8_t buttons = 0;
 
 int mouse_x = SCREEN_WIDTH / 2;
 int mouse_y = SCREEN_HEIGHT / 2;
+
+int8_t mouse_x_delta;
+int8_t mouse_y_delta;
 
 uint8_t saved_bg[25];  
 int cursor_initialized = 0; 
@@ -70,16 +74,16 @@ void restore_background(int x, int y) {
 }
 
 
-void draw_cursor(int x, int y, uint8_t color) {
+void draw_cursor(uint32_t x, uint32_t y, uint8_t color) {
     if (!cursor_initialized) {
       
-        saveBackground();
+        //saveBackground();
         cursor_initialized=1;
         return;
        
     }
 
-    saveBackground();
+    //saveBackground();
 
   
     putPixelWithIndex(x + 2, y, color);           
@@ -126,6 +130,13 @@ void init_mouse() {
     irq_install_handler(12, mouse_handler);
 }
 
+int8_t getMouseXDelta(){
+return mouse_x_delta;
+}
+int8_t getMouseYDelta(){
+ return -1*mouse_y_delta;
+}
+
 
 void mouse_handler(struct InterruptRegisters *regs) {
     uint8_t status = inPortB(MOUSE_COMMAND_PORT);
@@ -138,16 +149,19 @@ void mouse_handler(struct InterruptRegisters *regs) {
        
 
         left_button_pressed = (buffer[0] & 0x01) != 0;
-        if(!left_button_pressed){
+      
             if(cursor_initialized){
-            restoreBackground();
+            //restoreBackground();
             }
-        }
+        
     
 
        
         mouse_x += (int8_t)buffer[1];
         mouse_y -= (int8_t)buffer[2];
+
+        mouse_x_delta =(int8_t)buffer[1];
+        mouse_y_delta = (int8_t)buffer[2];
 
      
         if (mouse_x < 0) mouse_x = 0;
@@ -159,12 +173,26 @@ void mouse_handler(struct InterruptRegisters *regs) {
 
         if (left_button_pressed) {
             
-            draw_cursor(mouse_x, mouse_y, 0x10); 
+            //draw_cursor(mouse_x, mouse_y, 0x10); 
         } else {
          
-            draw_cursor(mouse_x, mouse_y, 0x10); 
+            //draw_cursor(mouse_x, mouse_y, 0x10); 
         }
 
-        update_display();
     }
+}
+
+uint32_t getMouseX()
+{
+    return mouse_x;
+}
+
+uint32_t getMouseY()
+{
+    return mouse_y;
+}
+
+bool getLeftButtonPress()
+{
+    return left_button_pressed;
 }

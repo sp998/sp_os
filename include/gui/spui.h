@@ -24,7 +24,7 @@ class SPCanvas{
         void DrawText(uint32_t x, uint32_t y, char* text);
         void FillShape(bool value);
         void DrawRect(uint32_t x,uint32_t y, uint32_t w,uint32_t h);
-    
+        void RenderDisplay();
 };
 
 

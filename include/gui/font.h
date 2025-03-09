@@ -11,6 +11,7 @@ extern "C" {
 #define FONT_8x8 0x1
 #define FONT_4x7 0x2
 #define FONT_5x8 0x3
+#define FONT_12x24 0x4
 
 unsigned char *getFont(uint8_t type, uint8_t *width, uint8_t *height);
 
