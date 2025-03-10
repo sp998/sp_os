@@ -1,5 +1,5 @@
 #include <gui/spui.h>
-
+#include <kernel/drivers/mouse.h>
 
 
 SPCanvas::SPCanvas()
@@ -95,4 +95,54 @@ void SPCanvas::DrawRect(uint32_t x, uint32_t y, uint32_t w, uint32_t h)
 void SPCanvas::RenderDisplay()
 {
     updateDisplay();
+}
+
+
+
+SPWidget::SPWidget(uint32_t x, uint32_t y,uint32_t w, uint32_t h)
+{
+    this->x =x;
+    this->y = y;
+    this->w = w;
+    this->h = h;
+    this->background=0xf;
+}
+void SPWidget::SetBackgroundColor(uint8_t colorIndex)
+{
+    this->background=colorIndex;
+}
+void SPWidget::Render(SPCanvas *canvas)
+{       
+    int mouse_x ,mouse_y;
+        mouse_x= getMouseX();
+        mouse_y = getMouseY();
+        
+        if (getLeftButtonPress()) {
+            
+             if (!grabbing) {
+                 if (mouse_x >= x && mouse_x <= x + w &&
+                     mouse_y >= y && mouse_y <= y + h) {
+                     grabbing = true;
+                     x_offset = mouse_x - x;  // Capture the offset within the window
+                     y_offset = mouse_y - y;
+                 }
+             }
+     
+             if (grabbing) {
+                 x =mouse_x - x_offset;  // Move window while maintaining offset
+                 y = abs(mouse_y - y_offset);
+                
+                if(x<0){
+                    x=0;
+                } 
+                
+             }
+         } else {
+             grabbing = false;
+         }
+     
+         
+    canvas->SetColor(this->background);
+    canvas->DrawRect(this->x,this->y,this->w,this->h);
+
 }

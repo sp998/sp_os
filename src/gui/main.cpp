@@ -38,53 +38,23 @@ extern "C" void main(){
      y=10;
  
      saveBackground();
+     SPWidget* rect1 = new SPWidget(10,10,100,100);
+     SPWidget* rect2 = new SPWidget(20,120,50,25);
 
-     bool grabbing = false;
-     int x_offset = 0, y_offset = 0;
-     uint32_t mouse_x ;
-     uint32_t mouse_y;
-     int width_decrease=0;
+   
 
      
      while (true)
      {   
-        mouse_x= getMouseX();
-        mouse_y = getMouseY();
-         restoreBackground();
-         saveBackground();
-         
-         if (getLeftButtonPress()) {
-            
-             if (!grabbing) {
-                 if (mouse_x >= x && mouse_x <= x + 200 &&
-                     mouse_y >= y && mouse_y <= y + 100) {
-                     grabbing = true;
-                     x_offset = mouse_x - x;  // Capture the offset within the window
-                     y_offset = mouse_y - y;
-                 }
-             }
-     
-             if (grabbing) {
-                 x =mouse_x - x_offset;  // Move window while maintaining offset
-                 y = abs(mouse_y - y_offset);
-                
-                if(x<0){
-                    x=0;
-                }
-               
-                
-             }
-         } else {
-             grabbing = false;
-         }
-     
-         
-         canvas->SetColor(0xf);
-         
-         canvas->DrawRect(x, y, 200+width_decrease, 100);
-         draw_cursor(mouse_x,mouse_y, 0xE);
+        restoreBackground();
+        saveBackground();
+         rect1->Render(canvas);
+         rect2->Render(canvas);
+         draw_cursor(getMouseX(),getMouseY(), 0xE);
          canvas->RenderDisplay();
      }
+
+     
     
 
 
