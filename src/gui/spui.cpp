@@ -3,6 +3,7 @@
 
 
 
+
 SPCanvas::SPCanvas()
 {
     setVgaMode(320,200,8);
@@ -108,6 +109,7 @@ SPWidget::SPWidget(uint32_t x, uint32_t y,uint32_t w, uint32_t h)
     this->h = h;
     this->background=0xf;
     this->onClick = [](SPWidget* widget){};
+    this->dragabble=true;
 }
 void SPWidget::SetBackgroundColor(uint8_t colorIndex)
 {
@@ -136,9 +138,10 @@ void SPWidget::Render(SPCanvas *canvas)
      
              if (grabbing) {
                  this->onClick(this);
+                 if(dragabble){
                  x =mouse_x - x_offset;  // Move window while maintaining offset
                  y = abs(mouse_y - y_offset);
-                
+                 }
                 if(x<0){
                     x=0;
                 } 
@@ -151,5 +154,8 @@ void SPWidget::Render(SPCanvas *canvas)
          
     canvas->SetColor(this->background);
     canvas->DrawRect(this->x,this->y,this->w,this->h);
-
+}
+void SPWidget::SetDraggable(bool value)
+{
+    this->dragabble =value;
 }
