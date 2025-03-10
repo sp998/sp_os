@@ -41,7 +41,9 @@ extern "C" void main(){
      SPWidget* rect1 = new SPWidget(10,10,100,100);
      SPWidget* rect2 = new SPWidget(20,120,50,25);
 
-   
+    rect2->SetOnClick([](SPWidget* widget){
+        widget->SetBackgroundColor(0x4);
+    });
 
      
      while (true)

@@ -2,6 +2,7 @@
 #include <kernel/drivers/mouse.h>
 
 
+
 SPCanvas::SPCanvas()
 {
     setVgaMode(320,200,8);
@@ -106,10 +107,15 @@ SPWidget::SPWidget(uint32_t x, uint32_t y,uint32_t w, uint32_t h)
     this->w = w;
     this->h = h;
     this->background=0xf;
+    this->onClick = [](SPWidget* widget){};
 }
 void SPWidget::SetBackgroundColor(uint8_t colorIndex)
 {
     this->background=colorIndex;
+}
+void SPWidget::SetOnClick(void (*onClick)(SPWidget* widget))
+{
+  this->onClick = onClick;
 }
 void SPWidget::Render(SPCanvas *canvas)
 {       
@@ -129,6 +135,7 @@ void SPWidget::Render(SPCanvas *canvas)
              }
      
              if (grabbing) {
+                 this->onClick(this);
                  x =mouse_x - x_offset;  // Move window while maintaining offset
                  y = abs(mouse_y - y_offset);
                 

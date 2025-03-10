@@ -36,9 +36,12 @@ class SPWidget{
         bool grabbing;
         int x_offset = 0, y_offset = 0;
         uint8_t background;
+        void (*onClick)(SPWidget* widget);
+        
     public:
         SPWidget(uint32_t x, uint32_t y,uint32_t w,uint32_t h);
         void SetBackgroundColor(uint8_t colorIndex);
+        void SetOnClick(void(*onClick)(SPWidget* widget));
         virtual void Render(SPCanvas *canvas);
 
 };
