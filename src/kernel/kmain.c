@@ -55,8 +55,9 @@ void my_process(){
 
 void user_main(){
 
-    print("In user mode\n");
+    printc("In user mode\n",BLUE);
     update_display();
+
     start_process((uint32_t)my_process, (uint32_t)user_stack + USER_STACK_SIZE);
     while(1);
 }
@@ -71,20 +72,27 @@ void on_screen_reset(){
 
 void kmain(uint32_t magic,multiboot_info_t* bootInfo){
     // Initialize critical system components
-    
-    init_gdt();   // Set up Global Descriptor Table
-    install_syscall_handler(2,myhandler);
-    initIdt();
 
     printc("In Kernel mode\n",GREEN);
+    print("setting up GDT\n");
+    init_gdt();   // Set up Global Descriptor Table
+    install_syscall_handler(2,myhandler);
+    print("setting up IDT\n");
+    initIdt();
+
+  
     update_display();
     //init_mem_disk();
+    print("Setting up malloc\n");
     init_malloc();
     //init_root();
     //init_system_events();
     //init_timer();
+    print("Setting up Keyboard\n");
     init_keyboard();
+    print("setting up mouse\n");
     init_mouse();
+    print("setting up system calls\n");
     init_syscall_start_process();
     init_syscall_read_key();
     
@@ -92,18 +100,10 @@ void kmain(uint32_t magic,multiboot_info_t* bootInfo){
 
 
     // Finalize display setup
-    //update_display();
-    init_malloc();
+    //update_display()
      
-   
+   print("switching to user mode.\n");
 
-   
-   
-
-
-
-
-    
    
    
     switch_to_user_mode();
