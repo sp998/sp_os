@@ -15,7 +15,8 @@ int8_t getMouseXDelta();
 int8_t getMouseYDelta();
 bool getLeftButtonPress();
 void draw_cursor(uint32_t x,uint32_t y,uint8_t color);
-
+void restore_background(int x, int y);
+void save_background(int x, int y);
 #ifdef __cplusplus
 }
 #endif

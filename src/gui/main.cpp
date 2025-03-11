@@ -59,21 +59,27 @@ extern "C" void main(){
         label1->SetBackgroundColor(0x5);
         char buff[4];
         count++;
-        delay(500);
+      
         itoa(count,buff);
+        delay(3000);
         
         label1->SetText(strcombine("count:",buff));
     });
 
+       
+
      
      while (true)
      {   
-        restoreBackground();
-        saveBackground();
+      restoreBackground();
+       saveBackground();
+        
          rect1->Render(canvas);
          rect2->Render(canvas);
          label1->Render(canvas);
+
          draw_cursor(getMouseX(),getMouseY(), 0xE);
+         delay(16);
          canvas->RenderDisplay();
      }
 

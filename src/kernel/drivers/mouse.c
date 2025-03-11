@@ -77,13 +77,13 @@ void restore_background(int x, int y) {
 void draw_cursor(uint32_t x, uint32_t y, uint8_t color) {
     if (!cursor_initialized) {
       
-        //saveBackground();
         cursor_initialized=1;
         return;
        
     }
 
     //saveBackground();
+ 
 
   
     putPixelWithIndex(x + 2, y, color);           
@@ -100,7 +100,6 @@ void draw_cursor(uint32_t x, uint32_t y, uint8_t color) {
     putPixelWithIndex(x + 2, y + 4, color);      
 
    
-    update_display();
 }
 
 

@@ -4,6 +4,7 @@
 
 
 
+
 SPCanvas::SPCanvas()
 {
     setVgaMode(320,200,8);
@@ -110,50 +111,63 @@ SPWidget::SPWidget(uint32_t x, uint32_t y,uint32_t w, uint32_t h)
     this->background=0xf;
     this->onClick = [](SPWidget* widget){};
     this->dragabble=true;
+    this->dirty = true;
+}
+bool SPWidget::IsDirty()
+{
+    return this->dirty;
 }
 void SPWidget::SetBackgroundColor(uint8_t colorIndex)
 {
     this->background=colorIndex;
+    this->dirty = true;
 }
 void SPWidget::SetOnClick(void (*onClick)(SPWidget* widget))
 {
   this->onClick = onClick;
 }
 void SPWidget::Render(SPCanvas *canvas)
-{       
-    int mouse_x ,mouse_y;
-        mouse_x= getMouseX();
-        mouse_y = getMouseY();
-        
-        if (getLeftButtonPress()) {
-            
-             if (!grabbing) {
-                 if (mouse_x >= x && mouse_x <= x + w &&
-                     mouse_y >= y && mouse_y <= y + h) {
-                     grabbing = true;
-                     x_offset = mouse_x - x;  // Capture the offset within the window
-                     y_offset = mouse_y - y;
-                 }
-             }
+{   
+    
+    int mouse_x = getMouseX();
+    int mouse_y = getMouseY();
+
+    if (getLeftButtonPress()) {
+        if (!grabbing) {
+            if (mouse_x >= x && mouse_x <= x + w &&
+                mouse_y >= y && mouse_y <= y + h) {
+                grabbing = true;
+                x_offset = mouse_x - x;
+                y_offset = mouse_y - y;
+            }
+        }
+
+        if (grabbing) {
+            this->onClick(this);
+
+            if (dragabble) {
+                int new_x = mouse_x - x_offset;
+                int new_y = abs(mouse_y - y_offset);
+
+                if (new_x < 0) new_x = 0;
+
+                if (new_x != x || new_y != y) {  // Check if position actually changes
+                    x = new_x;
+                    y = new_y;
+                    dirty = true;  // Mark widget as needing a redraw
+                }
+            }
+        }
+    } else {
+        grabbing = false;
+    }
+
+    if (dirty) {  // Only redraw if marked as dirty
      
-             if (grabbing) {
-                 this->onClick(this);
-                 if(dragabble){
-                 x =mouse_x - x_offset;  // Move window while maintaining offset
-                 y = abs(mouse_y - y_offset);
-                 }
-                if(x<0){
-                    x=0;
-                } 
-                
-             }
-         } else {
-             grabbing = false;
-         }
-     
-         
-    canvas->SetColor(this->background);
-    canvas->DrawRect(this->x,this->y,this->w,this->h);
+        canvas->SetColor(this->background);
+        canvas->DrawRect(this->x, this->y, this->w, this->h);
+        //dirty = false;  // Reset dirty flag after rendering
+    }
 }
 void SPWidget::SetDraggable(bool value)
 {
