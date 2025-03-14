@@ -28,7 +28,7 @@ void set_up_gtd();
 }
 #endif
 
-#define USER_STACK_SIZE 1024
+#define USER_STACK_SIZE 4096
 char user_stack[USER_STACK_SIZE];
 extern void make_sys_call();
 

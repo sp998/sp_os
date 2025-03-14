@@ -49,4 +49,29 @@ class SPWidget{
         void SetDraggable(bool value);
 
 };
+
+
+class SPWindow : public SPWidget {
+    private:
+        char* title;
+        bool isActive;
+        bool isMinimized; // Track the minimized state
+        bool isDestroyed; // Track the destroyed state
+        bool isDragging;
+        int dragOffsetX, dragOffsetY;
+    
+    public:
+        SPWindow(uint32_t x, uint32_t y, uint32_t w, uint32_t h, char* title);
+        void Render(SPCanvas* canvas);
+    
+        // Add setters/getters for minimizing/destroying, if needed
+        bool IsMinimized() const { return isMinimized; }
+        bool IsDestroyed() const { return isDestroyed; }
+        void SetActive(bool value);
+    
+        void Minimize() { isMinimized = !isMinimized; }
+        void Destroy() { isDestroyed = true; }
+    };
+    
+            
 #endif

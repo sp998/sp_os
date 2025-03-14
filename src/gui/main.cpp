@@ -41,32 +41,34 @@ extern "C" void main(){
      y=10;
  
      saveBackground();
-     TextLabel* rect1 = new TextLabel("Welcome To SP OS",10,20,100,100);
-     rect1->SetBackgroundColor(0x21);
-     rect1->SetTextColor(0xf);
+    //  TextLabel* rect1 = new TextLabel("Welcome To SP OS",10,20,100,100);
+    //  rect1->SetBackgroundColor(0x21);
+    //  rect1->SetTextColor(0xf);
 
      
-     TextLabel* rect2 = new TextLabel("Increment",120,150,65,25);
-     rect2->SetDraggable(false);
-     rect2->SetBackgroundColor(0x34);
-     rect2->SetTextColor(0xf);
-     label1 = new TextLabel("Count:0",120,20,100,100);
+    //  TextLabel* rect2 = new TextLabel("Increment",120,150,65,25);
+    //  rect2->SetDraggable(false);
+    //  rect2->SetBackgroundColor(0x34);
+    //  rect2->SetTextColor(0xf);
+    //  label1 = new TextLabel("Count:0",120,20,100,100);
 
-     label1->SetTextColor(0xf);
-     label1->SetBackgroundColor(0x28);
+    //  label1->SetTextColor(0xf);
+    //  label1->SetBackgroundColor(0x28);
 
-    rect2->SetOnClick([](SPWidget* widget){
-        label1->SetBackgroundColor(0x5);
-        char buff[4];
-        count++;
+    // rect2->SetOnClick([](SPWidget* widget){
+    //     label1->SetBackgroundColor(0x5);
+    //     char buff[4];
+    //     count++;
       
-        itoa(count,buff);
-        delay(3000);
+    //     itoa(count,buff);
+    //     delay(3000);
         
-        label1->SetText(strcombine("count:",buff));
-    });
+    //     label1->SetText(strcombine("count:",buff));
+    // });
 
        
+
+    SPWindow* mainWindow = new SPWindow(50, 50, 200, 150, "Main Window");
 
      
      while (true)
@@ -74,9 +76,10 @@ extern "C" void main(){
       restoreBackground();
        saveBackground();
         
-         rect1->Render(canvas);
-         rect2->Render(canvas);
-         label1->Render(canvas);
+        //  rect1->Render(canvas);
+        //  rect2->Render(canvas);
+         //label1->Render(canvas);
+         mainWindow->Render(canvas); 
 
          draw_cursor(getMouseX(),getMouseY(), 0xE);
          delay(16);

@@ -4,6 +4,7 @@
 
 
 
+SPWidget* grabbedWidget = nullptr;
 
 SPCanvas::SPCanvas()
 {
@@ -59,39 +60,23 @@ void SPCanvas::FillShape(bool value)
 
 void SPCanvas::DrawRect(uint32_t x, uint32_t y, uint32_t w, uint32_t h)
 {
-    if(this->fillShape){
-        for(uint32_t i = x;i<x+w;i++){
-            for(uint32_t j =y;j<y+h;j++){
-                DrawPixel(i,j);
+    if (this->fillShape) {
+        // Efficiently fill the rectangle by drawing horizontal lines
+        for (uint32_t j = y; j < y + h; j++) {
+            for (uint32_t i = x; i < x + w; i++) {
+                DrawPixel(i, j);
             }
         }
-    }else{
-        uint32_t x0,y0;
-        x0=x;
-        y0=y;
-
-        while(x0<w){
-            DrawPixel(x0,y0);
-            x0++;
+    } else {
+        // Draw four edges of the rectangle
+        for (uint32_t i = x; i < x + w; i++) {
+            DrawPixel(i, y);          // Top edge
+            DrawPixel(i, y + h - 1);  // Bottom edge
         }
-        x0=x;
-
-        while (y0<h)
-        {
-           DrawPixel(x0,y0);
-           y0++;
+        for (uint32_t j = y; j < y + h; j++) {
+            DrawPixel(x, j);          // Left edge
+            DrawPixel(x + w - 1, j);  // Right edge
         }
-
-        while(x0<w){
-            DrawPixel(x0,y0);
-            x0++;
-        }
-
-        while(y0>y){
-            DrawPixel(x0,y0);
-            y0--;
-        }
-    
     }
 }
 
@@ -132,34 +117,24 @@ void SPWidget::Render(SPCanvas *canvas)
     int mouse_x = getMouseX();
     int mouse_y = getMouseY();
 
-    if (getLeftButtonPress()) {
-        if (!grabbing) {
-            if (mouse_x >= x && mouse_x <= x + w &&
-                mouse_y >= y && mouse_y <= y + h) {
-                grabbing = true;
-                x_offset = mouse_x - x;
-                y_offset = mouse_y - y;
-            }
-        }
-
-        if (grabbing) {
-            this->onClick(this);
-
-            if (dragabble) {
-                int new_x = mouse_x - x_offset;
-                int new_y = abs(mouse_y - y_offset);
-
-                if (new_x < 0) new_x = 0;
-
-                if (new_x != x || new_y != y) {  // Check if position actually changes
-                    x = new_x;
-                    y = new_y;
-                    dirty = true;  // Mark widget as needing a redraw
+    if (getLeftButtonPress()) {  // If mouse is clicked
+       
+        if (grabbedWidget == nullptr || grabbedWidget == this) {  // Only grab if no other widget is grabbed
+            if (mouse_x >= this->x && mouse_x <= this->x + this->w &&
+                mouse_y >= this->y && mouse_y <= this->y + 16) {  // Clicked inside title bar
+                grabbedWidget = this;
+                this->onClick(this);
+                if(dragabble){
+                this->x = mouse_x - (this->w / 2); // Update X
+                this->y = mouse_y - 8; // Update Y
                 }
             }
+
         }
-    } else {
-        grabbing = false;
+    } else {  // If mouse is released
+        if (grabbedWidget == this) {
+            grabbedWidget = nullptr;  // Release grab
+        }
     }
 
     if (dirty) {  // Only redraw if marked as dirty
@@ -172,4 +147,105 @@ void SPWidget::Render(SPCanvas *canvas)
 void SPWidget::SetDraggable(bool value)
 {
     this->dragabble =value;
+}
+
+void SPWindow::SetActive(bool active) {
+    this->isActive = active;
+    this->dirty = true;
+}
+
+SPWindow::SPWindow(uint32_t x, uint32_t y, uint32_t w, uint32_t h, char *title)
+        : SPWidget(x, y, w, h) {
+        this->title = title;
+        this->isActive = false;
+    }
+    
+
+
+
+bool isMouseInsideRect(int mouseX, int mouseY, int bx, int by, int bw, int bh) {
+    return (mouseX >= bx && mouseX <= bx + bw && mouseY >= by && mouseY <= by + bh);
+}
+
+
+
+void SPWindow::Render(SPCanvas *canvas) {
+    int mouse_x = getMouseX();
+    int mouse_y = getMouseY();
+
+    // Button dimensions
+    int buttonWidth = 16;
+    int buttonHeight = 16;
+    int buttonSpacing = 4;
+
+    // Button positions (Minimize and Destroy buttons)
+    int minimizeBtnX = this->x + this->w - (buttonWidth * 2) - buttonSpacing;
+    int destroyBtnX = this->x + this->w - buttonWidth - buttonSpacing;
+
+    // Handle dragging logic
+    if (getLeftButtonPress()) {
+        // Check if mouse is over the title bar (for dragging)
+        if (isMouseInsideRect(mouse_x, mouse_y, this->x, this->y, this->w, 16)) {
+            if (!isDragging) {
+                isDragging = true; // Start dragging
+                // Calculate the offset relative to the window position
+                dragOffsetX = mouse_x - this->x;
+                dragOffsetY = mouse_y - this->y;
+            }
+        }
+
+        // Handle Minimize and Destroy buttons
+        if (isMouseInsideRect(mouse_x, mouse_y, minimizeBtnX, this->y + 1, buttonWidth, buttonHeight)) {
+            this->Minimize(); // Toggle minimize state
+            this->dirty = true;
+        }
+
+        if (isMouseInsideRect(mouse_x, mouse_y, destroyBtnX, this->y + 1, buttonWidth, buttonHeight)) {
+            this->Destroy(); // Destroy the window
+        }
+    }
+
+    // Stop dragging when mouse button is released
+    if (!getLeftButtonPress()) {
+        isDragging = false; // Stop dragging
+    }
+
+    // Update window position if dragging is true
+    if (isDragging) {
+        this->x = mouse_x - dragOffsetX;
+        this->y = mouse_y - dragOffsetY;
+    }
+
+    // Draw window background and title bar
+    canvas->SetColor(this->background);
+    canvas->DrawRect(this->x, this->y, this->w, this->h);
+
+    // Draw title bar
+    canvas->SetColor(0x07); // Light gray for title bar
+    canvas->DrawRect(this->x, this->y, this->w, 16);
+
+    // Draw title text
+    canvas->SetTextColor(0x00); // Black text for title
+    canvas->DrawText(this->x + 4, this->y + 4, this->title);
+
+    // Draw Minimize Button
+    canvas->SetColor(0x0F); // White for minimize button
+    canvas->DrawRect(minimizeBtnX, this->y + 1, buttonWidth, buttonHeight); // Minimize button shape
+    canvas->SetTextColor(0x00); // Black text for minimize button
+    canvas->DrawText(minimizeBtnX + 4, this->y + 4, "-");
+
+    // Draw Destroy Button
+    canvas->SetColor(0x0F); // Light red for destroy button
+    canvas->DrawRect(destroyBtnX, this->y + 1, buttonWidth, buttonHeight); // Destroy button shape
+    canvas->SetTextColor(0x00); // Black text for destroy button
+    canvas->DrawText(destroyBtnX + 4, this->y + 4, "X");
+
+    // If the window is minimized, don't render its content
+    if (!this->isMinimized) {
+        // Render window content here
+        canvas->SetColor(0x1F); // Example content color
+        canvas->DrawRect(this->x + 2, this->y + 18, this->w - 4, this->h - 20);  // Content area
+    }
+
+    this->dirty = false;
 }
