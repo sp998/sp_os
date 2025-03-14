@@ -3,6 +3,8 @@
 #include <kernel/drivers/vga.h>
 #include <gui/font.h>
 
+void delay(int ms);
+ 
 class SPCanvas{
     private:
         uint8_t backgroundColor;
@@ -32,6 +34,7 @@ class SPCanvas{
 
 };
 
+
 class SPWidget{
     protected:
         int32_t x;
@@ -55,28 +58,59 @@ class SPWidget{
 
 };
 
+class SPWindow;
+
+#define MAX_MINIMIZED_WINDOWS 10  // 
+class SPTaskbar {
+    public:
+        int x, y, width, height;
+        SPWindow* minimizedWindows[MAX_MINIMIZED_WINDOWS];  // Array of minimized windows
+        int numMinimizedWindows;  // Number of currently minimized windows
+    
+        SPTaskbar(int x, int y, int width, int height);
+    
+        // Method to add a minimized window to the taskbar
+        void AddMinimizedWindow(SPWindow* window);
+    
+        // Method to render the taskbar
+        void Render(SPCanvas* canvas);
+    
+        // Method to check if a minimized window button was clicked
+        void HandleClick(int mouse_x, int mouse_y);
+    };
 
 class SPWindow : public SPWidget {
     private:
-        char* title;
         bool isActive;
         bool isMinimized; // Track the minimized state
         bool isDestroyed; // Track the destroyed state
         bool isDragging;
         int dragOffsetX, dragOffsetY;
+        int originalX;
+        int originalY;
+    
+    public:  
+        char* title;
+
     
     public:
         SPWindow(uint32_t x, uint32_t y, uint32_t w, uint32_t h, char* title);
-        void Render(SPCanvas* canvas);
+        void Render(SPCanvas* canvas,SPTaskbar* taskbar);
     
         // Add setters/getters for minimizing/destroying, if needed
         bool IsMinimized() const { return isMinimized; }
         bool IsDestroyed() const { return isDestroyed; }
         void SetActive(bool value);
     
-        void Minimize() { isMinimized = !isMinimized; }
+        void Minimize(SPTaskbar* taskbar);
+        void Restore();
         void Destroy() { isDestroyed = true; }
     };
+
+
+
+
+
     
             
 #endif

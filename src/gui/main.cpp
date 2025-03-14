@@ -6,12 +6,7 @@
 
 extern  "C" char read_key();
 
-void delay(int ms) {
-    volatile int count = ms * 10000;  // Adjust based on CPU speed
-    while (count--) {
-        asm volatile("nop");  // No-operation to prevent aggressive optimization
-    }
-}
+
 int count=0;
 TextLabel* label1;
 
@@ -67,9 +62,10 @@ extern "C" void main(){
     // });
 
        
-
+ 
     SPWindow* mainWindow = new SPWindow(50, 50, 200, 150, "Main Window");
-
+    SPWindow* newWindow = new SPWindow(50,50,200,100,"New Window");
+    SPTaskbar* taskbar =new SPTaskbar(0, 180, WIDTH, 20); // Taskbar at the bottom
      
      while (true)
      {   
@@ -79,7 +75,11 @@ extern "C" void main(){
         //  rect1->Render(canvas);
         //  rect2->Render(canvas);
          //label1->Render(canvas);
-         mainWindow->Render(canvas); 
+         taskbar->HandleClick(getMouseX(),getMouseY());
+         taskbar->Render(canvas);
+         mainWindow->Render(canvas,taskbar);
+         newWindow->Render(canvas,taskbar);
+        
 
          draw_cursor(getMouseX(),getMouseY(), 0xE);
          delay(16);
