@@ -19,7 +19,7 @@ extern "C" void main(){
     char key;
     key = read_key();
 
-    SPCanvas* canvas = new SPCanvas();
+    SPCanvas* canvas = new SPCanvas(320,200);
     canvas->SetBackgroundColor(0x22);
     canvas->SetColor(0x11);
     canvas->SetTextColor(0xE);

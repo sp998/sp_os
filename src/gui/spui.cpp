@@ -6,9 +6,11 @@
 
 SPWidget* grabbedWidget = nullptr;
 
-SPCanvas::SPCanvas()
+SPCanvas::SPCanvas(uint32_t w, uint32_t h)
 {
-    setVgaMode(320,200,8);
+    setVgaMode(w,h,8);
+    this->w=w;
+    this->h=h;
     this->fillShape=false;
 }
 void SPCanvas::SetBackgroundColor(uint8_t r, uint8_t g, uint8_t b)
@@ -85,7 +87,15 @@ void SPCanvas::RenderDisplay()
     updateDisplay();
 }
 
+uint32_t SPCanvas::GetWidth()
+{
+    return w;
+}
 
+uint32_t SPCanvas::GetHeight()
+{
+    return h;
+}
 
 SPWidget::SPWidget(uint32_t x, uint32_t y,uint32_t w, uint32_t h)
 {
@@ -168,7 +178,6 @@ bool isMouseInsideRect(int mouseX, int mouseY, int bx, int by, int bw, int bh) {
 }
 
 
-
 void SPWindow::Render(SPCanvas *canvas) {
     int mouse_x = getMouseX();
     int mouse_y = getMouseY();
@@ -212,8 +221,26 @@ void SPWindow::Render(SPCanvas *canvas) {
 
     // Update window position if dragging is true
     if (isDragging) {
+        // Update the window position with bounds checking
         this->x = mouse_x - dragOffsetX;
         this->y = mouse_y - dragOffsetY;
+
+        // Prevent window from going off the screen (left, top, right, bottom boundaries)
+        int screenWidth = canvas->GetWidth();  // Get screen/canvas width
+        int screenHeight = canvas->GetHeight(); // Get screen/canvas height
+
+        // Clamp x and y so that the window doesn't go off the screen
+        if (this->x < 0) {
+            this->x = 0;  // Prevent window from going off the left
+        } else if (this->x + this->w > screenWidth) {
+            this->x = screenWidth - this->w;  // Prevent window from going off the right
+        }
+
+        if (this->y < 0) {
+            this->y = 0;  // Prevent window from going off the top
+        } else if (this->y + 16 > screenHeight) { // Considering the title bar height of 16
+            this->y = screenHeight - 16;  // Prevent window from going off the bottom
+        }
     }
 
     // Draw window background and title bar

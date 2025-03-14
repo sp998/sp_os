@@ -10,9 +10,11 @@ class SPCanvas{
         uint8_t textColor;
         uint8_t color; 
         bool fillShape;
+        uint32_t w;
+        uint32_t h;
 
     public:
-        SPCanvas();
+        SPCanvas(uint32_t w, uint32_t h);
         void SetBackgroundColor(uint8_t r, uint8_t g, uint8_t b);
         void SetBackgroundColor(uint8_t colorIndex);
         void SetFontType(uint8_t fontType);
@@ -25,12 +27,15 @@ class SPCanvas{
         void FillShape(bool value);
         void DrawRect(uint32_t x,uint32_t y, uint32_t w,uint32_t h);
         void RenderDisplay();
+        uint32_t GetWidth();
+        uint32_t GetHeight();
+
 };
 
 class SPWidget{
     protected:
-        uint32_t x;
-        uint32_t y;
+        int32_t x;
+        int32_t y;
         uint32_t w;
         uint32_t h;
         bool grabbing;
