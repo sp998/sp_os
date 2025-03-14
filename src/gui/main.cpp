@@ -23,11 +23,11 @@ extern "C" void main(){
 
     canvas->SetColor(0x0f);
     canvas->FillShape(true);
-    canvas->DrawRect(0,0,WIDTH,13);
+    //canvas->DrawRect(0,0,WIDTH,13);
 
     canvas->SetTextColor(0x60);
     canvas->SetFontType(FONT_5x8);
-    canvas->DrawText(0,2," Home Settings Files   Tools     Help          About");
+   // canvas->DrawText(0,2," Home Settings Files   Tools     Help          About");
     
     canvas->SetColor(0x21);
 
@@ -63,9 +63,14 @@ extern "C" void main(){
 
        
  
-    SPWindow* mainWindow = new SPWindow(50, 50, 200, 150, "Main Window");
-    SPWindow* newWindow = new SPWindow(50,50,200,100,"New Window");
+    SPWindow* mainWindow = new SPWindow(50, 50, 200, 150, "Home");
+    SPWindow* newWindow = new SPWindow(50,50,200,100,"Help");
+    SPWindow* aboutWindow = new SPWindow(50,50,200,100,"About");
     SPTaskbar* taskbar =new SPTaskbar(0, 180, WIDTH, 20); // Taskbar at the bottom
+    
+     mainWindow->Minimize(taskbar);
+     newWindow->Minimize(taskbar);
+     aboutWindow->Minimize(taskbar);
      
      while (true)
      {   
@@ -79,9 +84,11 @@ extern "C" void main(){
          taskbar->Render(canvas);
          mainWindow->Render(canvas,taskbar);
          newWindow->Render(canvas,taskbar);
+         aboutWindow->Render(canvas,taskbar);
+         
         
 
-         draw_cursor(getMouseX(),getMouseY(), 0xE);
+         draw_cursor(getMouseX(),getMouseY(), 0x0);
          delay(16);
          canvas->RenderDisplay();
      }

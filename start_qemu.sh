@@ -1,6 +1,6 @@
 #!/bin/bash
 
-qemu-system-i386 -m 512M -cdrom os.iso -vga std -display cocoa,zoom-to-fit=on
+qemu-system-i386 -m 512M -cdrom os.iso -vga std 
 
 
 

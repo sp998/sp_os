@@ -88,9 +88,11 @@ class SPWindow : public SPWidget {
         int dragOffsetX, dragOffsetY;
         int originalX;
         int originalY;
+       
     
     public:  
         char* title;
+        uint8_t position; 
 
     
     public:

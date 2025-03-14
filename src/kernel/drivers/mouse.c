@@ -73,35 +73,72 @@ void restore_background(int x, int y) {
     }
 }
 
-
-void draw_cursor(uint32_t x, uint32_t y, uint8_t color) {
+void draw_cursor_with_offset(uint32_t x, uint32_t y, uint8_t color, int32_t tail_offset, int32_t tail_slope) {
     if (!cursor_initialized) {
-      
-        cursor_initialized=1;
+        cursor_initialized = 1;
         return;
-       
     }
 
-    //saveBackground();
- 
-
-  
-    putPixelWithIndex(x + 2, y, color);           
-    putPixelWithIndex(x + 1, y + 1, color);      
-    putPixelWithIndex(x + 2, y + 1, color);       
-    putPixelWithIndex(x + 3, y + 1, color);      
-    putPixelWithIndex(x, y + 2, color);           
-    putPixelWithIndex(x + 1, y + 2, color);      
-    putPixelWithIndex(x + 2, y + 2, color);       
-    putPixelWithIndex(x + 3, y + 2, color);       
-    putPixelWithIndex(x + 4, y + 2, color);      
-    putPixelWithIndex(x + 1, y + 3, color);      
-    putPixelWithIndex(x + 3, y + 3, color);       
-    putPixelWithIndex(x + 2, y + 4, color);      
-
-   
+    // Draw the classic arrow cursor shape
+    // First row
+    putPixelWithIndex(x, y, color);
+    
+    // Second row
+    putPixelWithIndex(x, y + 1, color);
+    putPixelWithIndex(x + 1, y + 1, color);
+    
+    // Third row
+    putPixelWithIndex(x, y + 2, color);
+    putPixelWithIndex(x + 1, y + 2, color);
+    putPixelWithIndex(x + 2, y + 2, color);
+    
+    // Fourth row
+    putPixelWithIndex(x, y + 3, color);
+    putPixelWithIndex(x + 1, y + 3, color);
+    putPixelWithIndex(x + 2, y + 3, color);
+    putPixelWithIndex(x + 3, y + 3, color);
+    
+    // Fifth row
+    putPixelWithIndex(x, y + 4, color);
+    putPixelWithIndex(x + 1, y + 4, color);
+    putPixelWithIndex(x + 2, y + 4, color);
+    putPixelWithIndex(x + 3, y + 4, color);
+    putPixelWithIndex(x + 4, y + 4, color);
+    
+    // Sixth row
+    putPixelWithIndex(x, y + 5, color);
+    putPixelWithIndex(x + 1, y + 5, color);
+    putPixelWithIndex(x + 2, y + 5, color);
+    putPixelWithIndex(x + 3, y + 5, color);
+    putPixelWithIndex(x + 4, y + 5, color);
+    putPixelWithIndex(x + 5, y + 5, color);
+    
+    // Seventh row - Tail begins
+    putPixelWithIndex(x, y + 6, color);
+    putPixelWithIndex(x + 1, y + 6, color);
+    putPixelWithIndex(x + 2, y + 6, color);
+    putPixelWithIndex(x + 3, y + 6, color);
+    putPixelWithIndex(x + 6 + tail_offset, y + 6, color);
+    putPixelWithIndex(x + 7 + tail_offset, y + 6, color);
+    
+    // Eighth row
+    putPixelWithIndex(x, y + 7, color);
+    putPixelWithIndex(x + 1, y + 7, color);
+    putPixelWithIndex(x + 7 + tail_offset, y + 7 + tail_slope, color);
+    putPixelWithIndex(x + 8 + tail_offset, y + 7 + tail_slope, color);
+    
+    // Ninth row
+    putPixelWithIndex(x + 8 + tail_offset, y + 8 + tail_slope * 2, color);
+    putPixelWithIndex(x + 9 + tail_offset, y + 8 + tail_slope * 2, color);
+    
+    // Tenth row
+    putPixelWithIndex(x + 9 + tail_offset, y + 9 + tail_slope * 3, color);
+    putPixelWithIndex(x + 10 + tail_offset, y + 9 + tail_slope * 3, color);
 }
 
+void draw_cursor(uint32_t x, uint32_t y, uint8_t color) {
+   draw_cursor_with_offset(x,y,color,-4,1);
+}
 
 void init_mouse() {
 

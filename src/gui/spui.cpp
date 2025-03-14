@@ -191,6 +191,7 @@ SPWindow::SPWindow(uint32_t x, uint32_t y, uint32_t w, uint32_t h, char *title)
 {
     this->title = title;
     this->isActive = false;
+    this->position =-1;
 }
 
 bool isMouseInsideRect(int mouseX, int mouseY, int bx, int by, int bw, int bh) {
@@ -227,7 +228,9 @@ void SPWindow::Render(SPCanvas *canvas,SPTaskbar* taskbar) {
                 // Calculate the offset relative to the window position
                 dragOffsetX = mouse_x - this->x;
                 dragOffsetY = mouse_y - this->y;
+                grabbedWidget = this;
             }
+            
         }
 
         // Handle Minimize and Destroy buttons
@@ -249,9 +252,11 @@ void SPWindow::Render(SPCanvas *canvas,SPTaskbar* taskbar) {
     // Update window position if dragging is true
     if (isDragging) {
         // Update the window position with bounds checking
+        if(grabbedWidget==this){
         this->x = mouse_x - dragOffsetX;
         this->y = mouse_y - dragOffsetY;
 
+        }
         // Prevent window from going off the screen (left, top, right, bottom boundaries)
         int screenWidth = canvas->GetWidth();  // Get screen/canvas width
         int screenHeight = canvas->GetHeight(); // Get screen/canvas height
@@ -302,14 +307,27 @@ void SPWindow::Render(SPCanvas *canvas,SPTaskbar* taskbar) {
 
 SPTaskbar::SPTaskbar(int x, int y, int width, int height) : x(x), y(y), width(width), height(height), numMinimizedWindows(0) {}
 
+
 void SPTaskbar::AddMinimizedWindow(SPWindow* window) {
     if (numMinimizedWindows < MAX_MINIMIZED_WINDOWS) {
-        minimizedWindows[numMinimizedWindows++] = window;
+        if (window->position<0|| window->position >= MAX_MINIMIZED_WINDOWS) {
+            // Assign a new position only if it's not already set correctly
+            window->position = numMinimizedWindows;
+
+            // Shift windows to the right if needed
+            
+
+            minimizedWindows[window->position] = window;
+            numMinimizedWindows++;
+        } else {
+            // Update the existing minimized window at its correct position
+            minimizedWindows[window->position] = window;
+        }
     }
 }
 
 void SPTaskbar::Render(SPCanvas* canvas) {
-    int buttonWidth = 80; // Width of each button
+    int buttonWidth = 40; // Width of each button
     int buttonHeight = 20; // Height of each button
     int padding = 5; // Padding between buttons
 
@@ -324,52 +342,48 @@ void SPTaskbar::Render(SPCanvas* canvas) {
         int buttonY = this->y + 2;  // Slight margin from the taskbar
 
         // Draw a button for the minimized window
-        canvas->SetColor(0x7); // Button color
+        if(window->IsMinimized()){
+            canvas->SetColor(0x1); 
+            canvas->SetTextColor(0x0F); 
+        }else{
+            canvas->SetColor(0x7);
+            canvas->SetTextColor(0x00); 
+        }
+       // Button color
         canvas->DrawRect(buttonX, buttonY, buttonWidth, buttonHeight);
-        canvas->SetTextColor(0x00); // Text color (black)
+        // Text color (black)
         canvas->DrawText(buttonX + 4, buttonY + 4, window->title);
     }
 }
 
 bool buttonWasPressed = false;
 void SPTaskbar::HandleClick(int mouse_x, int mouse_y) {
-   
-    int buttonWidth = 60; // Width of each button
-    int buttonHeight = 20; // Height of each button
-    int padding = 5; // Padding between buttons
-  
+    int buttonWidth =40; // Match Render button width
+    int buttonHeight = 20;
+    int padding = 5;
 
-    // Check if any taskbar button was clicked
     for (int i = 0; i < numMinimizedWindows; i++) {
         SPWindow* window = minimizedWindows[i];
         int buttonX = this->x + i * (buttonWidth + padding);
         int buttonY = this->y + 2;
-        
+
         if (isMouseInsideRect(mouse_x, mouse_y, buttonX, buttonY, buttonWidth, buttonHeight)) {
-        
-            if(getLeftButtonPress()){
+            if (getLeftButtonPress()) {
                 buttonWasPressed = true;
             }
-            
-            
-            if(buttonWasPressed&&!getLeftButtonPress()){
-            
-            window->Restore(); // Restore the window
-            buttonWasPressed = false;
 
-            // Shift the remaining windows in the array to remove the clicked one
-            for (int j = i; j < numMinimizedWindows - 1; j++) {
-                minimizedWindows[j] = minimizedWindows[j + 1];
+            if (buttonWasPressed && !getLeftButtonPress()) {
+                buttonWasPressed = false; // Reset flag
+
+                window->Restore(); // Restore window to its previous position
+        
+
+                break; // Stop loop after restoring a window
             }
-            numMinimizedWindows--; // Decrease the number of minimized windows
-
-            break;
-        }
-
-        
-        
         }
     }
 }
+
+
 
 
