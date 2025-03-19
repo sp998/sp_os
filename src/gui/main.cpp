@@ -63,9 +63,21 @@ extern "C" void main(){
 
        
  
-    SPWindow* mainWindow = new SPWindow(50, 50, 200, 150, "Home");
-    SPWindow* newWindow = new SPWindow(50,50,200,100,"Help");
-    SPWindow* aboutWindow = new SPWindow(50,50,200,100,"About");
+    SPTextWindow* mainWindow = new SPTextWindow(
+        50, 50, 200, 150, "Home",
+        "Welcome to SP OS! This is the main window where you can access various features and applications."
+    );
+    
+    SPTextWindow* newWindow = new SPTextWindow(
+        50, 50, 200, 100, "Help",
+        "Need assistance? This help window provides guidance on how to use SP OS, including shortcuts and tips."
+    );
+    
+    SPTextWindow* aboutWindow = new SPTextWindow(
+        50, 50, 200, 100, "About",
+        "SP OS is a lightweight, custom-built operating system designed for efficiency and flexibility."
+    );
+    
     SPTaskbar* taskbar =new SPTaskbar(0, 180, WIDTH, 20); // Taskbar at the bottom
     
      mainWindow->Minimize(taskbar);

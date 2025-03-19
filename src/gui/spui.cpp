@@ -1,5 +1,6 @@
 #include <gui/spui.h>
 #include <kernel/drivers/mouse.h>
+#include <string.h>
 
 
 
@@ -384,6 +385,60 @@ void SPTaskbar::HandleClick(int mouse_x, int mouse_y) {
     }
 }
 
+SPTextWindow::SPTextWindow(uint32_t x, uint32_t y, uint32_t w, uint32_t h, char *title, char *text)
+    : SPWindow(x, y, w, h, title)  // Call the base class constructor
+{
+    this->text = text;
+}
 
+void SPTextWindow::Render(SPCanvas *canvas, SPTaskbar *taskbar)
+{
+    // Render the text content of the window
+    SPWindow::Render(canvas, taskbar); 
+    uint32_t width = this->x;
+    uint32_t height = this->y + 20;
+    canvas->SetTextColor(0x50);
+    canvas->SetFontType(FONT_5x8);
 
+    if (!this->IsMinimized()) {
+        uint32_t string_length = strlen(this->text);
+        uint32_t max_chars_per_line = this->w / 6;  // Maximum characters per line based on window width
 
+        char line[100];  // Buffer for each line
+        uint32_t line_start = 0;  // Start index of the current line
+
+        while (line_start < string_length) {
+            uint32_t line_end = line_start + max_chars_per_line;
+            
+            if (line_end > string_length) {
+                line_end = string_length;  // Clamp to the end of the string
+            } else {
+                // Try to find the last space before max_chars_per_line
+                uint32_t space_pos = line_end;
+                while (space_pos > line_start && this->text[space_pos] != ' ') {
+                    space_pos--;
+                }
+
+                // If we found a space, wrap at that position
+                if (space_pos > line_start) {
+                    line_end = space_pos;
+                }
+            }
+
+            // Copy the line to the buffer
+            uint32_t copy_length = line_end - line_start;
+            memcpy(line, this->text + line_start, copy_length);
+            line[copy_length] = '\0';  // Null-terminate the line
+
+            // Render the line
+            canvas->DrawText(width, height, line);
+            height += 8;  // Move to the next line
+
+            // Skip past the space if wrapping occurred at a space
+            line_start = line_end;
+            while (this->text[line_start] == ' ') {
+                line_start++;
+            }
+        }
+    }
+}

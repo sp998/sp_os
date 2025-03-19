@@ -80,7 +80,7 @@ class SPTaskbar {
     };
 
 class SPWindow : public SPWidget {
-    private:
+    protected:
         bool isActive;
         bool isMinimized; // Track the minimized state
         bool isDestroyed; // Track the destroyed state
@@ -111,6 +111,13 @@ class SPWindow : public SPWidget {
 
 
 
+class SPTextWindow:public SPWindow{
+    private :
+        char* text;
+    public:
+        SPTextWindow(uint32_t x, uint32_t y, uint32_t w, uint32_t h, char* title,char* text);
+        void Render(SPCanvas* canvas,SPTaskbar* taskbar);
+};
 
 
     
