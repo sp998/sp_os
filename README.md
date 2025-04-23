@@ -3,6 +3,16 @@
 SP OS is a personal operating system project created out of curiosity and learning. I kept going step by step, diving deeper into low-level systems. I never imagined I'd build this much, but here it is!
 
 ---
+## Screenshots
+
+### GUI Mode
+![SP OS GUI](./assets/screenshots/gui.png)  
+*Early GUI with window rendering and mouse support*
+
+### Boot/Terminal
+![SP OS Boot](./assets/screenshots/boot.png)  
+*Initial screen or terminal view of SP OS*
+
 
 ## Features
 
@@ -13,6 +23,7 @@ SP OS is a personal operating system project created out of curiosity and learni
 - Process launching support using TSS
 - Keyboard and mouse input handling
 - Display driver and custom UI framework
+
 
 ---
 
