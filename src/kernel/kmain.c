@@ -35,14 +35,6 @@ extern void start_process(uint32_t eip, uint32_t esp);
 void my_process();
 
 
-
-void myhandler(struct InterruptRegisters* regs){
-    print("syscall\n");
-   
-    update_display();
-}
-
-
 void my_process(){
     print("Do you want to enter graphics mode? Press Enter to confirm.");
     update_display();
@@ -76,7 +68,6 @@ void kmain(uint32_t magic,multiboot_info_t* bootInfo){
     printc("In Kernel mode\n",GREEN);
     print("setting up GDT\n");
     init_gdt();   // Set up Global Descriptor Table
-    install_syscall_handler(2,myhandler);
     print("setting up IDT\n");
     initIdt();
 
