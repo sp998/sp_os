@@ -9,9 +9,9 @@ SP OS is a personal operating system project created out of curiosity and learni
 ![SP OS GUI](./assets/screenshots/gui.png)  
 *Early GUI with window rendering and mouse support*
 
-### Boot/Terminal
+### Text Mode
 ![SP OS Boot](./assets/screenshots/boot.png)  
-*Initial screen or terminal view of SP OS*
+*Initial terminal view of SP OS*
 
 
 ## Features
