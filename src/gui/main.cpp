@@ -4,15 +4,10 @@
 #include <gui/textlabel.h>
 
 
-extern  "C" char read_key();
 
 
-int count=0;
-TextLabel* label1;
 
 extern "C" void main(){
-    char key;
-    key = read_key();
 
     SPCanvas* canvas = new SPCanvas(320,200);
     canvas->SetBackgroundColor(0x22);

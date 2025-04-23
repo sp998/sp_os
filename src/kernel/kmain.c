@@ -22,7 +22,6 @@ extern "C" {
 #endif
 
 void main();  // Function prototype
-void set_up_gtd();
 
 #ifdef __cplusplus
 }
@@ -31,7 +30,7 @@ void set_up_gtd();
 #define USER_STACK_SIZE 4096
 char user_stack[USER_STACK_SIZE];
 extern void make_sys_call();
-
+extern  char read_key();
 extern void start_process(uint32_t eip, uint32_t esp);
 void my_process();
 
@@ -47,6 +46,7 @@ void myhandler(struct InterruptRegisters* regs){
 void my_process(){
     print("Do you want to enter graphics mode? Press Enter to confirm.");
     update_display();
+    read_key();
     main();
     while(1);
 }
