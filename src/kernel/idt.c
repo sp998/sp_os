@@ -2,6 +2,7 @@
 #include <io.h>
 #include <stdbool.h>
 #include<kernel/drivers/keyboard.h>
+#include <printf.h>
 
 
 #define PIC1_COMMAND 0x20
@@ -153,6 +154,9 @@ void install_syscall_handler(int syscall_no, void (*handler)(struct InterruptReg
 
 void isr_handler(struct InterruptRegisters * regs)
 {
+    if(regs->int_no==6){
+        printf("Invalid opcode at EIP: %x\n", regs->eip);
+    }
     if(regs->int_no <32){
         
             print(exception_messages[regs->int_no]);

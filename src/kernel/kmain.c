@@ -15,6 +15,10 @@
 #include <multiboot.h>
 #include <kernel/drivers/vga.h>
 #include <kernel/drivers/mouse.h>
+#include <kernel/syscalls/print_syscall.h>
+#include<printf.h>
+#include <ide.h>
+#include <elf_loader.h>
 
 
 #ifdef __cplusplus
@@ -36,7 +40,7 @@ void my_process();
 
 
 void my_process(){
-    print("Do you want to enter graphics mode? Press Enter to confirm.");
+    printf("Do you want to enter graphics mode? Press Enter to confirm.%f",3.1415);
     update_display();
     read_key();
     main();
@@ -48,9 +52,20 @@ void my_process(){
 void user_main(){
 
     printc("In user mode\n",BLUE);
+
+  
+
+    uint32_t program_entry= load_and_print_elf(0);
+    if(program_entry==NULL){
+        printf("could not start program invalid entry point");
+    }else{
+        start_process(program_entry, (uint32_t)user_stack + USER_STACK_SIZE);
+    }
+
     update_display();
 
-    start_process((uint32_t)my_process, (uint32_t)user_stack + USER_STACK_SIZE);
+
+   
     while(1);
 }
 
@@ -71,7 +86,7 @@ void kmain(uint32_t magic,multiboot_info_t* bootInfo){
     print("setting up IDT\n");
     initIdt();
 
-  
+    init_ide();
     update_display();
     //init_mem_disk();
     print("Setting up malloc\n");
@@ -86,12 +101,15 @@ void kmain(uint32_t magic,multiboot_info_t* bootInfo){
     print("setting up system calls\n");
     init_syscall_start_process();
     init_syscall_read_key();
+    init_syscall_print();
     
 
 
 
     // Finalize display setup
     //update_display()
+
+    
      
    print("switching to user mode.\n");
 

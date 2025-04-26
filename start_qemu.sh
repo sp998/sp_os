@@ -1,6 +1,6 @@
 #!/bin/bash
 
-qemu-system-i386 -m 512M -cdrom os.iso -vga std 
+qemu-system-i386 -m 512M -cdrom os.iso -drive file=sp_disk.img,if=ide -vga std  -boot d
 
 
 

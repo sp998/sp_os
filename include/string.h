@@ -6,7 +6,7 @@ extern "C" {
 #endif
 #include<stddef.h>
 #include<stdint.h>
-int strcmp(char* str1,char* str2);
+int strcmp(const char* str1,char* str2);
 uint32_t strlen(char* str);
 
 
