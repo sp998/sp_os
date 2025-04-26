@@ -22,6 +22,7 @@
 #include <fat32.h>
 #include <syslib.h>
 #include <gui/init.h>
+#include <kernel/syscalls/exit_syscall.h>
 
 
 
@@ -31,8 +32,6 @@ extern  char read_key();
 
 
 void user_main(){
-   
-    clear_screen();
     printc("$p>",GREEN);
     set_back_space_offset(4);
     
@@ -92,6 +91,7 @@ void kmain(uint32_t magic,multiboot_info_t* bootInfo){
     init_syscall_read_key();
     init_syscall_print();
     fs_init();
+    init_exit_syscall();
 
 
    

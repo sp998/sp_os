@@ -92,6 +92,7 @@ void keyboard_handler(struct InterruptRegisters *regs)
         print(input); 
       
          }else{
+            outb(PIC1_COMMAND, PIC_EOI); 
             handle_file(file_result);
          }
          print("\n");
