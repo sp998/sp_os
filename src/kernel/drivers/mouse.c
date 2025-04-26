@@ -214,9 +214,6 @@ void mouse_handler(struct InterruptRegisters *regs) {
          
             //draw_cursor(mouse_x, mouse_y, 0x10); 
         }
-        print(mouse_x);
-            print(mouse_y);
-            update_display();
 
     }
 }

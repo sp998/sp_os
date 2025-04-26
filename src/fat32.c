@@ -22,7 +22,7 @@ uint32_t get_partition_start() {
     // Partition entry starts at 446 (0x1BE)
     uint32_t partition_start_lba = *(uint32_t*)(mbr + 446 + 8);
 
-    printf("Partition Start LBA: %u\n", partition_start_lba);
+    //printf("Partition Start LBA: %u\n", partition_start_lba);
     return partition_start_lba;
 }
 
