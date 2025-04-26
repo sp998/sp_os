@@ -4,12 +4,22 @@
 #include <sysvars.h>
 #include <utils.h>
 #include <memdisk.h>
+#include <fat32.h>
+#include <syslib.h>
+#include <gui/init.h>
+#include <gdt.h>
 
 
 
 void clear_command(){
     clear_screen();
   
+}
+
+
+void gui_command(){
+    start_process(main, (uint32_t)get_user_stack() + USER_STACK_SIZE);
+    
 }
 
 void mkdir_command(int argc, char* argv[]){
@@ -70,7 +80,7 @@ void file_exists(int argc,char* argv[]){
 }
 
 void ls_command(int argc,char* argv[]){
-    list_files(get_current_directory());
+    fat_list_files();
 }
 
 void write(int argc, char* argv[]) {
@@ -152,6 +162,7 @@ Command* init_commands(){
    register_command(commandHead,createCommand("chfile",file_exists));
    register_command(commandHead,createCommand("write",write));
    register_command(commandHead,createCommand("read",read));
+   register_command(commandHead,createCommand("spui",gui_command));
 
    return commandHead;
 }

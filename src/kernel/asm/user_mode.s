@@ -2,11 +2,14 @@ global switch_to_user_mode
 extern user_main
 
 
+
 section .bss
     align 4
     user_stack:
         resb 32768    ; Allocate 32KB for user stack
     user_stack_top:
+
+
 
 section .text
 switch_to_user_mode:
@@ -36,6 +39,9 @@ switch_to_user_mode:
     ; 4. Enable interrupts and switch to user mode
     sti                 ; Enable interrupts in kernel mode
     iret                ; Jump to user mode
+
+
+
 
 
 

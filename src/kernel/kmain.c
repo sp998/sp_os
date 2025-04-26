@@ -19,54 +19,41 @@
 #include<printf.h>
 #include <ide.h>
 #include <elf_loader.h>
+#include <fat32.h>
+#include <syslib.h>
+#include <gui/init.h>
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
-void main();  // Function prototype
 
-#ifdef __cplusplus
-}
-#endif
-
-#define USER_STACK_SIZE 4096
-char user_stack[USER_STACK_SIZE];
 extern void make_sys_call();
 extern  char read_key();
-extern void start_process(uint32_t eip, uint32_t esp);
-void my_process();
-
-
-void my_process(){
-    printf("Do you want to enter graphics mode? Press Enter to confirm.%f",3.1415);
-    update_display();
-    read_key();
-    main();
-    while(1);
-}
-
 
 
 void user_main(){
+   
+    clear_screen();
+    printc("$p>",GREEN);
+    set_back_space_offset(4);
+    
 
-    printc("In user mode\n",BLUE);
+    // uint8_t elf_buffer = (uint8_t*)USER_ELF_LOAD_ADDR;
 
-  
-
-    uint32_t program_entry= load_and_print_elf(0);
-    if(program_entry==NULL){
-        printf("could not start program invalid entry point");
-    }else{
-        start_process(program_entry, (uint32_t)user_stack + USER_STACK_SIZE);
-    }
-
+    // fat_read_file_content(15,4620,elf_buffer);
+    // uint32_t program_entry= load_and_print_elf(elf_buffer);
+    // if(program_entry==NULL){
+    //     printf("could not start program invalid entry point");
+    // }else{
+    //     start_process(program_entry, (uint32_t)user_stack + USER_STACK_SIZE);
+    // }
+    
+    
     update_display();
+    while(1);
 
 
    
-    while(1);
+
 }
 
 
@@ -80,28 +67,36 @@ void on_screen_reset(){
 void kmain(uint32_t magic,multiboot_info_t* bootInfo){
     // Initialize critical system components
 
-    printc("In Kernel mode\n",GREEN);
-    print("setting up GDT\n");
+    //printc("In Kernel mode\n",GREEN);
+    //print("setting up GDT\n");
     init_gdt();   // Set up Global Descriptor Table
-    print("setting up IDT\n");
+    //print("setting up IDT\n");
     initIdt();
 
+
     init_ide();
+
     update_display();
     //init_mem_disk();
-    print("Setting up malloc\n");
+    //print("Setting up malloc\n");
     init_malloc();
     //init_root();
     //init_system_events();
     //init_timer();
-    print("Setting up Keyboard\n");
+    //print("Setting up Keyboard\n");
     init_keyboard();
-    print("setting up mouse\n");
+    //print("setting up mouse\n");
     init_mouse();
-    print("setting up system calls\n");
+    //print("setting up system calls\n");
     init_syscall_start_process();
     init_syscall_read_key();
     init_syscall_print();
+    fs_init();
+
+
+   
+
+
     
 
 
@@ -111,7 +106,7 @@ void kmain(uint32_t magic,multiboot_info_t* bootInfo){
 
     
      
-   print("switching to user mode.\n");
+   //print("switching to user mode.\n");
 
    
    

@@ -329,9 +329,14 @@ char key_code_lookup_table[] ={'\0','\0','1','2','3','4','5','6','7','8','9','0'
 
 
 // Function to display the keycode
-
-void print_char(char value){
+void _print_char(char value){
     buffer_input[buffer_input_index++]=value;
+    char str[2];
+    str[0]=value;
+    str[1]='\0';
+    print(str);
+}
+void print_char(char value){
     char str[2];
     str[0]=value;
     str[1]='\0';

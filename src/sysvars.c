@@ -3,7 +3,7 @@
 #include <string.h>
 
 uint16_t back_space_offset=5;
-char* shell_prompt;
+static char* shell_prompt;
 char currentKey=0;
 bool keyPressed = false;
 
