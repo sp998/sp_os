@@ -85,6 +85,7 @@ void print_char(char value);
 void reset_shell();
 void printc(const char *str,uint8_t color);
 void write_to_cell_c(int cell,char c,uint8_t color);
+void _put_buffer(char value,char* buffer);
 
 
 #ifdef __cplusplus

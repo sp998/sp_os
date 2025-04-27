@@ -11,6 +11,12 @@ void set_shell_prompt(const char* prompt);
 void set_current_key(char key);
 char get_current_key();
 
+void set_user_input_mode(bool value);
+void set_user_input_buffer(char* value);
+char* get_user_input_buffer();
+
+bool get_user_input_mode();
+
 set_key_pressed(bool value);
 bool get_key_pressed();
 

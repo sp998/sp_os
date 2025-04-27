@@ -125,11 +125,16 @@ void backspace(){
        if(cur_col()<get_back_space_offset()){
         return;
        }
+       if(get_user_input_mode()){
+        get_user_input_buffer()[buffer_input_index-1] = '\0';
+       }else{
         buffer_input[buffer_input_index-1] = '\0';
+       }
         if(buffer_input_index>0){
             buffer_input_index--;
             
-        }    
+        }   
+     
     
     write_to_cell(last_pos-2,'\0');
     if(last_pos!=0){
@@ -336,6 +341,16 @@ void _print_char(char value){
     str[1]='\0';
     print(str);
 }
+
+
+void _put_buffer(char value,char* buffer){
+    buffer[buffer_input_index++]=value;
+    char str[2];
+    str[0]=value;
+    str[1]='\0';
+    print(str);
+}
+
 void print_char(char value){
     char str[2];
     str[0]=value;

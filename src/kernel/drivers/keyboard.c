@@ -74,6 +74,12 @@ void keyboard_handler(struct InterruptRegisters *regs)
     }
 
     if(scancode==0x1c&pressed){
+
+        if(get_user_input_mode()){
+            set_user_input_mode(false);
+            outb(PIC1_COMMAND, PIC_EOI); 
+            return;
+        }
         char input[80];
         get_line(input);
         int argc;
@@ -114,8 +120,15 @@ void keyboard_handler(struct InterruptRegisters *regs)
     if (pressed) {
         char c = shift_pressed ? keyboard_map_shift[scancode] : keyboard_map[scancode];
         if (c) {
+            if(get_user_input_mode()){
+               _put_buffer(c,get_user_input_buffer());
+            }else{
+
             _print_char(c);
+         
+            }
             show_buffer();
+           
         }
     }
 }

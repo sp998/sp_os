@@ -23,6 +23,7 @@
 #include <syslib.h>
 #include <gui/init.h>
 #include <kernel/syscalls/exit_syscall.h>
+#include <kernel/syscalls/input_syscall.h>
 
 
 
@@ -92,6 +93,7 @@ void kmain(uint32_t magic,multiboot_info_t* bootInfo){
     init_syscall_print();
     fs_init();
     init_exit_syscall();
+    init_input_syscall();
 
 
    
