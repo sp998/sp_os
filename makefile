@@ -3,6 +3,7 @@ CC = gcc
 CXX = g++
 AS = nasm
 LD = ld
+RUST_TARGET = i686-unknown-none
 
 # Compilation flags
 CFLAGS = -m32 -ffreestanding -fno-builtin -fno-stack-protector -c -Iinclude
@@ -15,6 +16,7 @@ SRC_DIR := src
 BUILD_DIR := build
 INCLUDE_DIR := include
 ISO_DIR := iso
+RUST_DIR := rust/rust_kernel
 
 # Find all source files recursively
 C_SOURCES := $(shell find $(SRC_DIR) -type f -name "*.c")
@@ -31,11 +33,16 @@ OBJECTS := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(C_SOURCES)) \
 ISO_FILE := os.iso
 DISK_IMAGE := mydisk.img
 
-# Build kernel
-all: $(BUILD_DIR)/kernel.elf
+# Build Rust library
+$(BUILD_DIR)/librust_kernel.a:
+	cd $(RUST_DIR) && cargo build --target $(RUST_TARGET)
+	cp $(RUST_DIR)/target/$(RUST_TARGET)/debug/librust_kernel.a $(BUILD_DIR)/
 
-$(BUILD_DIR)/kernel.elf: $(OBJECTS)
-	$(LD) $(LDFLAGS) $(OBJECTS) -o $@
+# Build kernel
+all: $(BUILD_DIR)/librust_kernel.a $(BUILD_DIR)/kernel.elf
+
+$(BUILD_DIR)/kernel.elf: $(OBJECTS) $(BUILD_DIR)/librust_kernel.a
+	$(LD) $(LDFLAGS) $(OBJECTS) $(BUILD_DIR)/librust_kernel.a -o $@
 
 # Ensure object file directories exist before compiling
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
@@ -80,5 +87,6 @@ download:
 # Clean build files
 clean:
 	rm -rf $(BUILD_DIR) $(ISO_FILE) $(DISK_IMAGE) $(ISO_DIR)/boot/kernel.elf
+	cd $(RUST_DIR) && cargo clean
 
 .PHONY: all os.iso run clean download create-disk flash

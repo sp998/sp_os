@@ -29,7 +29,9 @@
 
 
 extern void make_sys_call();
-extern  char read_key();
+extern char read_key();
+// Rust kernel main function
+extern void rust_main();
 
 
 void user_main(){
@@ -66,6 +68,7 @@ void on_screen_reset(){
 
 void kmain(uint32_t magic,multiboot_info_t* bootInfo){
     // Initialize critical system components
+    // Call Rust kernel initialization
 
     //printc("In Kernel mode\n",GREEN);
     //print("setting up GDT\n");
@@ -111,6 +114,7 @@ void kmain(uint32_t magic,multiboot_info_t* bootInfo){
    //print("switching to user mode.\n");
 
    
-   
+    rust_main();
+    update_display();
     switch_to_user_mode();
 }

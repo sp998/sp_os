@@ -6,3 +6,8 @@
 *.img
 .DS_Store
 .DS_Store
+
+.cargo
+target
+*.a
+*.lock
