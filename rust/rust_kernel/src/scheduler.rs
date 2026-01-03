@@ -6,6 +6,37 @@ use core::fmt::Write;
 // spin::Mutex to allow global mutable access
 use spin::Mutex;
 
+#[repr(C, packed)]
+pub struct TssEntry {
+    pub prev_tss: u32,
+    pub esp0: u32,
+    pub ss0: u32,
+    pub esp1: u32,
+    pub ss1: u32,
+    pub esp2: u32,
+    pub ss2: u32,
+    pub cr3: u32,
+    pub eip: u32,
+    pub eflags: u32,
+    pub eax: u32,
+    pub ecx: u32,
+    pub edx: u32,
+    pub ebx: u32,
+    pub esp: u32,
+    pub ebp: u32,
+    pub esi: u32,
+    pub edi: u32,
+    pub es: u32,
+    pub cs: u32,
+    pub ss: u32,
+    pub ds: u32,
+    pub fs: u32,
+    pub gs: u32,
+    pub ldt: u32,
+    pub trap: u16,
+    pub iomap_base: u16,
+}
+
 pub struct Scheduler {
     processes: VecDeque<Box<Process>>,
     current_pid: u32,
@@ -24,38 +55,46 @@ impl Scheduler {
     }
 
     pub fn schedule(&mut self, current_esp: u32) -> u32 {
+        // If there's only one process (PID 0 / kernel), don't switch
+        if self.processes.len() <= 1 {
+            return current_esp;
+        }
+        
         // 1. Update current process ESP
         if let Some(current) = self.processes.front_mut() {
              if current.state == ProcessState::Running {
                  current.esp = current_esp;
                  current.state = ProcessState::Ready; // Move to ready for rotation
              }
-        } else {
-            // Should not happen if we always have Kernel (PID 0)
         }
 
         // 2. Rotate to next process
-        if self.processes.len() > 1 {
-            // Move front to back
-            if let Some(p) = self.processes.pop_front() {
-                self.processes.push_back(p);
-            }
+        // Move front to back
+        if let Some(p) = self.processes.pop_front() {
+            self.processes.push_back(p);
         }
         
-        // 3. Pick new front
+        // 3. Pick new front and switch to it
         if let Some(next) = self.processes.front_mut() {
             next.state = ProcessState::Running;
             self.current_pid = next.pid;
             
-            // Switch CR3 if needed (TODO: exposed CR3 update or done in ASM)
-            // For now, we return ESP. ASM/C needs to handle CR3 if we need to switch it.
-            // But wait, `rust_schedule` only returns ESP. 
-            // We might need to handle CR3 switching here via inline asm or FFI if strictly necessary.
-            // But since all tasks share kernel mapping and we are identity mapped mostly...
-            // Let's assume CR3 switch is handled or not needed yet for basic threads.
+            // Update TSS esp0 for syscalls/interrupts from Ring 3
+            // The CPU will use this stack when transitioning from user to kernel mode
+            if next.kstack_top != 0 {
+                unsafe {
+                    extern "C" {
+                        static mut tss_entry: TssEntry;
+                    }
+                    tss_entry.esp0 = next.kstack_top;
+                }
+            }
             
+            // Switch CR3 if this process has its own page directory
             if next.cr3 != 0 {
-                // unsafe { core::arch::asm!("mov cr3, {}", in(reg) next.cr3) }; // Optional
+                unsafe {
+                    core::arch::asm!("mov cr3, {}", in(reg) next.cr3);
+                }
             }
             
             return next.esp;
@@ -107,10 +146,22 @@ pub extern "C" fn rust_init_multitasking() {
     {
         let mut scheduler = SCHEDULER.lock();
         if scheduler.processes.is_empty() {
+            // Capture the current state for the kernel process (PID 0)
+            let mut current_esp: u32;
+            let mut current_cr3: u32;
+            unsafe {
+                // We don't actually need ESP for PID 0 since we never switch TO it
+                // from another process - we're already running it
+                // But we set it to a safe non-zero value
+                core::arch::asm!("mov {}, esp", out(reg) current_esp);
+                core::arch::asm!("mov {}, cr3", out(reg) current_cr3);
+            }
+            
             let kernel_proc = Process {
                 pid: 0,
-                esp: 0, 
-                cr3: 0, 
+                esp: current_esp,  // Capture current ESP
+                cr3: current_cr3,  // Capture current CR3
+                kstack_top: 0,     // Kernel doesn't need separate kstack
                 state: ProcessState::Running,
                 stack_check_val: 0xDEADBEEF,
             };
@@ -131,34 +182,64 @@ pub extern "C" fn rust_spawn_process(entry_point: u32, stack_top: u32) {
     unsafe { core::arch::asm!("cli"); }
     {
         let mut scheduler = SCHEDULER.lock();
-        let pid = scheduler.processes.len() as u32; // pid 0 is kernel
+        let pid = scheduler.processes.len() as u32;
 
         unsafe {
-            let mut esp = stack_top;
-            
-            // 1. IRET Frame (Ring 3)
-            esp -= 4; *(esp as *mut u32) = 0x23;  // SS (User Data) 
-            esp -= 4; *(esp as *mut u32) = stack_top - 128; // User ESP
-            esp -= 4; *(esp as *mut u32) = 0x202; // EFLAGS (IF=1)
-            esp -= 4; *(esp as *mut u32) = 0x1B;  // CS (User Code)
-            esp -= 4; *(esp as *mut u32) = entry_point; // EIP
-            
-            // 2. Dummy error code and int no
-            esp -= 4; *(esp as *mut u32) = 0; // err_code
-            esp -= 4; *(esp as *mut u32) = 32; // int_no
-
-            // 3. Pusha (8 registers) - Initialize to 0
-            for _ in 0..8 {
-                esp -= 4; *(esp as *mut u32) = 0;
+            extern "C" {
+                fn malloc(size: usize) -> *mut u8;
             }
             
-            // 4. DS
-            esp -= 4; *(esp as *mut u32) = 0x23; // DS (User Data)
+            // Capture the current CR3 (page directory) - the ELF loader has already
+            // mapped the program's memory into this page directory
+            let mut current_cr3: u32;
+            core::arch::asm!("mov {}, cr3", out(reg) current_cr3);
+            
+            // Allocate a separate 4KB kernel stack for this process
+            // The interrupt frame will be built on this kernel stack
+            let kstack = malloc(4096);
+            if kstack.is_null() {
+                // Out of memory - can't create process
+                unsafe { core::arch::asm!("sti"); }
+                return;
+            }
+            
+            // Calculate kernel stack top (for TSS esp0)
+            let kstack_top = (kstack as u32) + 4096;
+            
+            // Build the interrupt frame on the kernel stack
+            // Start from the top of the kernel stack
+            let mut esp = kstack_top;
+            
+            // IRET frame (bottom of stack, popped last)
+            esp -= 4; *(esp as *mut u32) = 0x23;           // SS
+            esp -= 4; *(esp as *mut u32) = stack_top;      // User ESP (top of user stack)
+            esp -= 4; *(esp as *mut u32) = 0x202;          // EFLAGS (IF=1)
+            esp -= 4; *(esp as *mut u32) = 0x1B;           // CS
+            esp -= 4; *(esp as *mut u32) = entry_point;    // EIP
+            
+            // Error code and interrupt number (skipped by add esp,8)
+            esp -= 4; *(esp as *mut u32) = 0;  // err_code
+            esp -= 4; *(esp as *mut u32) = 32; // int_no
+            
+            // PUSHA frame (8 general purpose registers)
+            // Order: EAX, ECX, EDX, EBX, ESP, EBP, ESI, EDI
+            esp -= 4; *(esp as *mut u32) = 0; // EDI
+            esp -= 4; *(esp as *mut u32) = 0; // ESI
+            esp -= 4; *(esp as *mut u32) = 0; // EBP
+            esp -= 4; *(esp as *mut u32) = 0; // ESP (ignored by popa)
+            esp -= 4; *(esp as *mut u32) = 0; // EBX
+            esp -= 4; *(esp as *mut u32) = 0; // EDX
+            esp -= 4; *(esp as *mut u32) = 0; // ECX
+            esp -= 4; *(esp as *mut u32) = 0; // EAX
+            
+            // DS segment (popped into EBX then moved to segment registers)
+            esp -= 4; *(esp as *mut u32) = 0x23; // DS
             
             let new_proc = Process {
                 pid,
-                esp,
-                cr3: 0, 
+                esp,  // This is now pointing to the kernel stack with the frame
+                cr3: current_cr3,  // Use the current page directory
+                kstack_top,  // Store for TSS esp0 updates
                 state: ProcessState::Ready,
                 stack_check_val: 0xDEADBEEF,
             };
@@ -209,7 +290,7 @@ pub extern "C" fn rust_kill_process(pid: u32) -> bool {
 
 #[no_mangle]
 pub extern "C" fn rust_spawn_process_from_file(path_ptr: *const u8) {
-    let path = unsafe { core::ffi::CStr::from_ptr(path_ptr as *const core::ffi::c_char).to_str().unwrap() };
+    let _path = unsafe { core::ffi::CStr::from_ptr(path_ptr as *const core::ffi::c_char).to_str().unwrap() };
     
     extern "C" {
         fn malloc(size: usize) -> *mut u8;
@@ -223,8 +304,9 @@ pub extern "C" fn rust_spawn_process_from_file(path_ptr: *const u8) {
     if size > 0 {
         let entry_point = unsafe { load_and_print_elf(buf) };
         if entry_point != 0 {
-            // Stack top
-            let stack_top = unsafe { get_user_stack().add(32768) as u32 };
+            // USER_STACK_SIZE is defined as 4096 in syslib.h
+            const USER_STACK_SIZE: u32 = 4096;
+            let stack_top = unsafe { get_user_stack().add(USER_STACK_SIZE as usize) as u32 };
             rust_spawn_process(entry_point, stack_top);
         }
     }
