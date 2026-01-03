@@ -37,10 +37,12 @@ const char keyboard_map_shift[128] = {
 
 
 
+static Command* commandHead = NULL;
+
 void init_keyboard()
 {
    irq_install_handler(1, keyboard_handler);
-
+   commandHead = init_commands();
 }
 
 void handle_file(FAT16_DirEntry* file){
@@ -73,7 +75,8 @@ void keyboard_handler(struct InterruptRegisters *regs)
         return;
     }
 
-    if(scancode==0x1c&pressed){
+    // Fix operator precedence and logic: (scancode == 0x1c) && pressed
+    if(scancode == 0x1c && pressed){
 
         if(get_user_input_mode()){
             set_user_input_mode(false);
@@ -84,7 +87,6 @@ void keyboard_handler(struct InterruptRegisters *regs)
         get_line(input);
         int argc;
         char** args = get_args(input,80,&argc);
-        Command* commandHead = init_commands();
        
         Command* currentCommand = get_command(args[0],commandHead);
         if(currentCommand !=NULL){
@@ -120,6 +122,8 @@ void keyboard_handler(struct InterruptRegisters *regs)
                  // Load file
                  uint8_t* elf_buffer = (uint8_t*)USER_ELF_LOAD_ADDR;
                  uint32_t size = rust_fs_load_file(path_buffer, elf_buffer);
+
+                 // We don't have extensive printf for ints, assume size > 0 check is enough for flow
                  if (size > 0) {
                      uint32_t program_entry = load_and_print_elf(elf_buffer);
                      if(program_entry != 0) {

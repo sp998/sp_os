@@ -17,7 +17,7 @@ char* get_user_input_buffer();
 
 bool get_user_input_mode();
 
-set_key_pressed(bool value);
+void set_key_pressed(bool value);
 bool get_key_pressed();
 
 

@@ -98,9 +98,13 @@ void init_pmm(multiboot_info_t* mboot_info) {
     // 3. Mark Kernel area as USED so we don't allocate over it
     // We assume kernel is loaded at 1MB (0x100000) and link.ld defines _end
     extern uint32_t _end;
-    uint32_t kernel_end = (uint32_t)&_end;
+    extern uint32_t _heap_end; // Defined in linker script
+    // uint32_t kernel_end = (uint32_t)&_end; 
+    // We must reserve the Heap as well, otherwise PMM will allocate frames that malloc thinks it owns!
+    uint32_t kernel_end = (uint32_t)&_heap_end;
+
     // Mark from 0x0 to kernel_end as used
-    // (0x0 to 0x100000 is BIOS/GRUB stuff, 0x100000 to _end is Kernel)
+    // (0x0 to 0x100000 is BIOS/GRUB stuff, 0x100000 to _end is Kernel, _end to _heap_end is Heap)
     pmm_deinit_region(0x0, kernel_end + 4096); // +4k safety margin
 
     printf("PMM Initialized. Used blocks: %d / %d\n", (int)used_blocks, (int)max_blocks);

@@ -158,10 +158,23 @@ void isr_handler(struct InterruptRegisters * regs)
         printf("Invalid opcode at EIP: %x\n", regs->eip);
     }
     if(regs->int_no <32){
-        
             print(exception_messages[regs->int_no]);
             print(":");
             print_number(regs->int_no);
+            
+            if (regs->int_no == 14) {
+                uint32_t cr2;
+                asm volatile("mov %%cr2, %0" : "=r"(cr2));
+                printf("\nFaulting Address: 0x%x\n", cr2);
+                printf("Instruction Pointer (EIP): 0x%x\n", regs->eip);
+                
+                uint32_t cr3;
+                asm volatile("mov %%cr3, %0" : "=r"(cr3));
+                printf("Page Directory (CR3): 0x%x\n", cr3);
+            } else {
+                 printf("\nEIP: 0x%x\n", regs->eip);
+            }
+
             print("\nException. System Halted!\n");
             update_display();
             for(;;);

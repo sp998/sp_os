@@ -3,7 +3,7 @@
 
 char user_stack[USER_STACK_SIZE];
 
-char get_user_stack()
+void* get_user_stack()
 {
     return user_stack;
 }

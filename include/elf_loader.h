@@ -10,7 +10,7 @@
 #include <kernel/elf32.h>
 
 
-#define USER_ELF_LOAD_ADDR 0x1000000
+#define USER_ELF_LOAD_ADDR 0x00A00000
 #define SECTOR_SIZE 512  // Sector size is typically 512 bytes
 #define ELF_FILE_SIZE (1 * 4620) // Size of ELF file in bytes (4.6 KB)
 #define ELF_SECTOR_COUNT ((ELF_FILE_SIZE + SECTOR_SIZE - 1) / SECTOR_SIZE)  // Number of sectors required

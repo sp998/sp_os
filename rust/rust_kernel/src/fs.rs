@@ -238,23 +238,32 @@ pub fn read_file(entry: &DirEntry) -> Vec<u8> {
     let mut data = Vec::new();
     let mut current_cluster = entry.first_cluster_lo;
     let mut bytes_left = entry.size as usize;
+    // println!("FS: Reading file size: {} bytes, Start Cluster: {}", bytes_left, current_cluster);
     
     unsafe {
         // Find FAT table start
         let fat_start_sector = PARTITION_LBA + RESERVED_SECTORS as u32;
         
+        // Allocate buffer on heap to avoid stack overflow in ISR
+        let mut buf_vec = Vec::with_capacity(512);
+        buf_vec.resize(512, 0);
+        
         while bytes_left > 0 && current_cluster >= 2 && current_cluster < 0xFFF8 {
             // Read Cluster Data
             let lba = cluster_lba(current_cluster);
-            let mut buf = [0u8; 512];
             
+            // println!("FS: Reading cluster {} LBA {}", current_cluster, lba);
+
             for s in 0..SECTORS_PER_CLUSTER {
                 if bytes_left == 0 { break; }
                 
-                 if !read_sector(lba + s as u32, &mut buf) { break; }
+                 if !read_sector(lba + s as u32, &mut buf_vec) {
+                     println!("FS: Failed to read sector");
+                     break; 
+                 }
                  
                  let chunk = if bytes_left > 512 { 512 } else { bytes_left };
-                 data.extend_from_slice(&buf[0..chunk]);
+                 data.extend_from_slice(&buf_vec[0..chunk]);
                  bytes_left -= chunk;
             }
             
@@ -264,10 +273,14 @@ pub fn read_file(entry: &DirEntry) -> Vec<u8> {
             let fat_sector_offset = fat_offset / 512;
             let fat_ent_offset = (fat_offset % 512) as usize;
             
-            if !read_sector(fat_start_sector + fat_sector_offset, &mut buf) { break; }
+            if !read_sector(fat_start_sector + fat_sector_offset, &mut buf_vec) { 
+                println!("FS: Failed to read FAT sector");
+                break; 
+            }
             
-            let next_cluster_ptr = buf.as_ptr().add(fat_ent_offset) as *const u16;
+            let next_cluster_ptr = buf_vec.as_ptr().add(fat_ent_offset) as *const u16;
             current_cluster = *next_cluster_ptr;
+            // println!("FS: Next cluster: {}", current_cluster);
         }
     }
     data

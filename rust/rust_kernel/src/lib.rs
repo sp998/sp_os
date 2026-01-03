@@ -22,7 +22,9 @@ struct KernelAllocator;
 
 unsafe impl GlobalAlloc for KernelAllocator {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-        malloc(layout.size())
+        let ptr = malloc(layout.size());
+        // println!("Alloc: size={} ptr={:p}", layout.size(), ptr);
+        ptr
     }
 
     unsafe fn dealloc(&self, ptr: *mut u8, _layout: Layout) {

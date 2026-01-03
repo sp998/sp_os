@@ -30,21 +30,43 @@ uint32_t load_and_print_elf(void* elf_buffer) {
     // Verify ELF magic
     if (ehdr->e_ident[0] != 0x7f || ehdr->e_ident[1] != 'E' || ehdr->e_ident[2] != 'L' || ehdr->e_ident[3] != 'F') {
         printf("Invalid ELF magic\n");
-        return;
+        return 0;
     }
     
 
     if(check_entry_point(ehdr,elf_buffer,ehdr->e_entry)==0){
-        return NULL;
+        return 0;
     }
     // Loop through program headers
     Elf32_Phdr* phdrs = (Elf32_Phdr*)(elf_buffer + ehdr->e_phoff);
     for (int i = 0; i < ehdr->e_phnum; i++) {
         Elf32_Phdr* ph = &phdrs[i];
 
+#include <kernel/pmm.h>
+#include <kernel/vmm.h>
+
         if (ph->p_type != 1) continue; // Only load PT_LOAD
 
-        //printf("Loading segment %d to virtual address 0x%x\n", i, ph->p_vaddr);
+        // Map pages for this segment
+        uint32_t file_size = ph->p_filesz;
+        uint32_t mem_size = ph->p_memsz;
+        uint32_t virt_addr = ph->p_vaddr;
+        
+        // Calculate start and end page aligned addresses
+        uint32_t start_page = virt_addr & 0xFFFFF000;
+        uint32_t end_page = (virt_addr + mem_size + 0xFFF) & 0xFFFFF000;
+        
+        for (uint32_t page = start_page; page < end_page; page += 4096) {
+             // Check if already mapped (to avoid remapping if overlaps)
+             // For now, we force map (or check if we had a get_phys function)
+             // Assuming pmm_alloc_block returns a physical address frame
+             void* frame = pmm_alloc_block();
+             if (frame == 0) {
+                 printf("ELF Loader: Out of memory\n");
+                 return 0;
+             }
+             map_page(frame, (void*)page, PAGE_PRESENT | PAGE_RW | PAGE_USER);
+        }
 
         // Copy segment data from file to memory
         memcpy((void*)ph->p_vaddr, elf_buffer + ph->p_offset, ph->p_filesz);
@@ -64,7 +86,7 @@ uint32_t load_elf_directly(uint32_t start_sector, void *buffer)
     if(load_elf_from_disk(start_sector,buffer)){
         return load_and_print_elf(buffer);
     }
-    return NULL;
+    return 0;
 }
 
 bool check_entry_point(Elf32_Ehdr* ehdr,  uint8_t* elf_buffer,uint32_t entry_point){

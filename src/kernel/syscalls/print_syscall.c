@@ -4,6 +4,7 @@
 
 void print_syscall_handler(struct InterruptRegisters *regs){
     char *str = (char*)regs->ebx;
+    // printf("Syscall Print Addr: 0x%x\n", (uint32_t)str);
     print(str);
     update_display();
 
