@@ -37,7 +37,8 @@ void map_page(void* phys, void* virt, uint32_t flags) {
     
     pt[ptindex] = ((uint32_t)phys) | (flags & 0xFFF) | PAGE_PRESENT;
     
-    // Invalidate TLB (invlpg) would go here if we were changing an existing mapping
+    // Invalidate TLB for this virtual address to ensure CPU sees the new mapping immediately
+    asm volatile("invlpg (%0)" ::"r" (virt) : "memory");
 }
 
 void enable_paging() {
