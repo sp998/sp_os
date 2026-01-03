@@ -145,6 +145,15 @@ int  abs(int val){
     return -1*val;
 }
 
+int atoi(const char* str) {
+    int res = 0;
+    while (*str >= '0' && *str <= '9') {
+        res = res * 10 + (*str - '0');
+        str++;
+    }
+    return res;
+}
+
 
 void *memset(void *ptr, int value, size_t num) {
     unsigned char *p = ptr;

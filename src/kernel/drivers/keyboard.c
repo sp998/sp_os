@@ -57,7 +57,7 @@ void handle_file(FAT16_DirEntry* file){
         start_process(program_entry, (uint32_t)get_user_stack() + USER_STACK_SIZE);
     }
 }
-void keyboard_handler(struct InterruptRegisters *regs)
+uint32_t keyboard_handler(struct InterruptRegisters *regs)
 {
     char rawcode = inPortB(0x60);
     char scancode = rawcode & 0x7F;
@@ -66,13 +66,13 @@ void keyboard_handler(struct InterruptRegisters *regs)
     // Handle shift press/release
     if (scancode == 0x2A || scancode == 0x36) { // Left or Right Shift
         shift_pressed = pressed;
-        return;
+        return (uint32_t)regs;
     }
 
     if (scancode == 0x0E) { // 0x0E is Backspace
         backspace();  // You need to implement this
         update_display();
-        return;
+        return (uint32_t)regs;
     }
 
     // Fix operator precedence and logic: (scancode == 0x1c) && pressed
@@ -80,8 +80,7 @@ void keyboard_handler(struct InterruptRegisters *regs)
 
         if(get_user_input_mode()){
             set_user_input_mode(false);
-            outb(PIC1_COMMAND, PIC_EOI); 
-            return;
+            return (uint32_t)regs;
         }
         char input[80];
         get_line(input);
@@ -91,7 +90,6 @@ void keyboard_handler(struct InterruptRegisters *regs)
         Command* currentCommand = get_command(args[0],commandHead);
         if(currentCommand !=NULL){
             print("\n");
-            outb(PIC1_COMMAND, PIC_EOI); 
             currentCommand->commandHandler(argc,args);
         }else{
             
@@ -118,7 +116,6 @@ void keyboard_handler(struct InterruptRegisters *regs)
             extern uint32_t rust_fs_load_file(const char* path, uint8_t* buffer);
             
             if (rust_fs_find_path(path_buffer)) {
-                 outb(PIC1_COMMAND, PIC_EOI);
                  // Load file
                  uint8_t* elf_buffer = (uint8_t*)USER_ELF_LOAD_ADDR;
                  uint32_t size = rust_fs_load_file(path_buffer, elf_buffer);
@@ -148,7 +145,7 @@ void keyboard_handler(struct InterruptRegisters *regs)
         scroll_up();
         show_buffer();
    
-        return;
+        return (uint32_t)regs;
         }
         
        
@@ -168,4 +165,5 @@ void keyboard_handler(struct InterruptRegisters *regs)
            
         }
     }
+    return (uint32_t)regs;
 }

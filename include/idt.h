@@ -18,11 +18,11 @@ struct idt_ptr_struct {
 void initIdt();
 void setIdtGate(uint8_t num, uint32_t base, uint16_t selector, uint8_t flags);
 
-void isr_handler(struct InterruptRegisters* regs);
-void irq_handler(struct InterruptRegisters * regs);
+uint32_t isr_handler(struct InterruptRegisters* regs);
+uint32_t irq_handler(struct InterruptRegisters * regs);
 
 void irq_uninstall_handler(int irq);
-void irq_install_handler(int irq, void (*handler)(struct InterruptRegisters *));
+void irq_install_handler(int irq, uint32_t (*handler)(struct InterruptRegisters *));
 void install_syscall_handler(int syscall_no, void (*handler)(struct InterruptRegisters *));
 
 

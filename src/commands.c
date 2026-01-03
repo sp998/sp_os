@@ -153,6 +153,64 @@ void read(int argc, char* argv[]) {
 
 
 
+void ps_command(int argc, char* argv[]) {
+    char* buffer = (char*)malloc(1024);
+    extern void rust_process_list(char* buffer, int max_len);
+    rust_process_list(buffer, 1024);
+    print(buffer);
+    free(buffer);
+}
+
+void kill_command(int argc, char* argv[]) {
+    if (argc < 2) {
+        print("Usage: kill <pid>\n");
+        return;
+    }
+    int pid = atoi(argv[1]);
+    extern bool rust_kill_process(int pid);
+    if (rust_kill_process(pid)) {
+        print("Process killed\n");
+    } else {
+        print("Failed to kill process\n");
+    }
+}
+
+void start_command(int argc, char* argv[]) {
+    if (argc < 2) {
+        print("Usage: start <program_name>\n");
+        return;
+    }
+    
+    char full_path[128];
+    const char* prefix = "sp/programs/";
+    int i = 0;
+    while(prefix[i]) {
+        full_path[i] = prefix[i];
+        i++;
+    }
+    int j = 0;
+    while(argv[1][j]) {
+        full_path[i+j] = argv[1][j];
+        j++;
+    }
+    full_path[i+j] = '\0';
+
+    extern bool rust_fs_find_path(const char* path);
+    if (rust_fs_find_path(full_path)) {
+        extern void rust_spawn_process_from_file(const char* path);
+        rust_spawn_process_from_file(full_path);
+        print("Starting process: ");
+        print(argv[1]);
+        print("\n");
+        update_display();
+    } else {
+        print("Program not found: ");
+        print(full_path);
+        print("\n");
+        update_display();
+    }
+}
+
 Command* init_commands(){
    Command* commandHead=createCommand("clear",clear_command);
    register_command(commandHead,createCommand("ls",ls_command));
@@ -163,6 +221,9 @@ Command* init_commands(){
    register_command(commandHead,createCommand("write",write));
    register_command(commandHead,createCommand("read",read));
    register_command(commandHead,createCommand("spui",gui_command));
+   register_command(commandHead,createCommand("ps",ps_command));
+   register_command(commandHead,createCommand("kill",kill_command));
+   register_command(commandHead,createCommand("start",start_command));
 
    return commandHead;
 }

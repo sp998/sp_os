@@ -10,6 +10,7 @@ void itoa(int num, char *str);
 char* strcpy(const char* src,  char* dest );
 
 int abs(int val);
+int atoi(const char* str);
 void *memset(void *ptr, int value, size_t num);
 void *memcpy(void *dest, const void *src, size_t n);
 char* strcombine(const char* src1,const char* scr2);
@@ -19,13 +20,12 @@ int split_string(const char *str, char delimiter, char tokens[][20], int max_tok
 void outPortB(uint16_t port, uint8_t value);
 char inPortB(uint16_t port);
 struct InterruptRegisters{
-    uint32_t cr2;
     uint32_t ds;
     uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax;
     uint32_t int_no, err_code;
     uint32_t eip, cs, eflags, useresp, ss;
 
-};
+} __attribute__((packed));
 
 uint32_t min(uint32_t a, uint32_t b);
 

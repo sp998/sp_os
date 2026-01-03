@@ -3,7 +3,6 @@ global idt_flush
 idt_flush:
     mov eax, [esp+4]
     lidt [eax]
-    sti
     ret
 
 
@@ -11,8 +10,8 @@ idt_flush:
     global isr%1
     isr%1:
         cli
-        push long 0
-        push long %1
+        push dword 0
+        push dword %1
         jmp isr_common_stub
 %endmacro
 
@@ -21,7 +20,7 @@ idt_flush:
     global isr%1
     isr%1:
         cli
-        push long %1
+        push dword %1
         jmp isr_common_stub
 %endmacro
 
@@ -29,8 +28,8 @@ idt_flush:
     global irq%1
     irq%1:
         cli
-        push long 0
-        push long %2
+        push dword 0
+        push dword %2
         jmp irq_common_stub
 %endmacro
 
@@ -95,8 +94,6 @@ isr_common_stub:
     pusha
     mov eax,ds
     push eax
-    mov eax,cr2
-    push eax
 
     mov ax,0x10
     mov ds,ax
@@ -104,10 +101,13 @@ isr_common_stub:
     mov fs,ax
     mov gs,ax
 
-    push esp ; push the stack pointer
+    push esp ; point to InterruptRegisters
 
     call isr_handler
-    add esp,8 ; remove the stack pointer
+    
+    ; isr_handler should return (uint32_t)regs
+    mov esp, eax
+
     pop ebx
     mov ds,bx
     mov es,bx
@@ -116,7 +116,6 @@ isr_common_stub:
 
     popa
     add esp,8
-    sti
     iret
 
 
@@ -125,8 +124,6 @@ irq_common_stub:
     pusha
     mov eax,ds
     push eax
-    mov eax,cr2
-    push eax
 
     mov ax,0x10
     mov ds,ax
@@ -134,10 +131,13 @@ irq_common_stub:
     mov fs,ax
     mov gs,ax
 
-    push esp ; push the stack pointer
+    push esp ; point to InterruptRegisters
 
     call irq_handler
-    add esp,8 ; remove the stack pointer
+    
+    ; irq_handler returns (uint32_t)regs or new ESP
+    mov esp, eax
+
     pop ebx
     mov ds,bx
     mov es,bx
@@ -146,5 +146,4 @@ irq_common_stub:
 
     popa
     add esp,8
-    sti
     iret

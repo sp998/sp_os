@@ -8,7 +8,7 @@ extern "C" {
 #include <stdbool.h>
 
 void init_mouse();
-void mouse_handler(struct InterruptRegisters *regs);
+uint32_t mouse_handler(struct InterruptRegisters *regs);
 uint32_t getMouseX();
 uint32_t getMouseY();
 int8_t getMouseXDelta();

@@ -6,10 +6,11 @@
 
 
 static uint32_t ticks = 0;
-void onIRQ0(struct InterruptRegisters *regs)
+uint32_t onIRQ0(struct InterruptRegisters *regs)
 {
     ticks++;
-    
+    extern uint32_t rust_schedule(uint32_t current_esp);
+    return rust_schedule((uint32_t)regs);
 }
 void init_timer()
 {

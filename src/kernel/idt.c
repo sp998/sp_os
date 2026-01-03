@@ -104,7 +104,7 @@ void setIdtGate(uint8_t num, uint32_t base, uint16_t selector, uint8_t flags)
     idt_entries[num].flags = flags;
 }
 
-void *irq_routines[16] = {
+uint32_t (*irq_routines[16])(struct InterruptRegisters *) = {
     0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0
 };
@@ -152,7 +152,7 @@ void install_syscall_handler(int syscall_no, void (*handler)(struct InterruptReg
       syscall_routines[syscall_no]=handler;
 }
 
-void isr_handler(struct InterruptRegisters * regs)
+uint32_t isr_handler(struct InterruptRegisters * regs)
 {
     if(regs->int_no==6){
         printf("Invalid opcode at EIP: %x\n", regs->eip);
@@ -189,11 +189,12 @@ void isr_handler(struct InterruptRegisters * regs)
        
     }
 
+    return (uint32_t)regs;
 }
 
 
 
-void irq_install_handler(int irq, void (*handler)(struct InterruptRegisters *))
+void irq_install_handler(int irq, uint32_t (*handler)(struct InterruptRegisters *))
 {
     irq_routines[irq] = handler;
 }
@@ -205,16 +206,20 @@ void irq_uninstall_handler(int irq)
     irq_routines[irq] = 0;
 }
 
-void irq_handler(struct InterruptRegisters * regs)
+uint32_t irq_handler(struct InterruptRegisters * regs)
 {
-    void (*handler)(struct InterruptRegisters *);
-    handler = irq_routines[regs->int_no - 32];
+    uint32_t (*handler)(struct InterruptRegisters *);
 
-    if(handler){
-        handler(regs);
-    }
     if(regs->int_no >= 40){
         outPortB(PIC2_COMMAND, 0x20);
     }
     outPortB(PIC1_COMMAND, 0x20);
+
+    handler = irq_routines[regs->int_no - 32];
+
+    if(handler){
+        return handler(regs);
+    }
+    
+    return (uint32_t)regs;
 }

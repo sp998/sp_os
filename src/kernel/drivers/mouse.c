@@ -174,9 +174,9 @@ int8_t getMouseYDelta(){
 }
 
 
-void mouse_handler(struct InterruptRegisters *regs) {
+uint32_t mouse_handler(struct InterruptRegisters *regs) {
     uint8_t status = inPortB(MOUSE_COMMAND_PORT);
-    if (!(status & 0x20)) return;
+    if (!(status & 0x20)) return (uint32_t)regs;
 
     buffer[offset] = inPortB(MOUSE_DATA_PORT);
     offset = (offset + 1) % 3;
@@ -216,6 +216,7 @@ void mouse_handler(struct InterruptRegisters *regs) {
         }
 
     }
+    return (uint32_t)regs;
 }
 
 uint32_t getMouseX()

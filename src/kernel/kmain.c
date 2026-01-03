@@ -90,11 +90,17 @@ void kmain(uint32_t magic,multiboot_info_t* bootInfo){
     update_display();
     //init_mem_disk();
     //print("Setting up malloc\n");
+    print("Initializing Malloc...\n");
     init_malloc();
-    //init_root();
-    //init_system_events();
-    //init_timer();
-    //print("Setting up Keyboard\n");
+    
+    print("Initializing Multitasking...\n");
+    extern void rust_init_multitasking();
+    rust_init_multitasking();
+
+    print("Initializing Timer...\n");
+    init_timer(); // This will enable IRQ0 which calls rust_schedule
+
+    print("Initializing Keyboard...\n");
     init_keyboard();
     //print("setting up mouse\n");
     init_mouse();

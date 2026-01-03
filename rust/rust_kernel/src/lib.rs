@@ -5,6 +5,8 @@
 extern crate alloc;
 pub mod memory;
 pub mod fs;
+pub mod process;
+pub mod scheduler;
 
 use core::panic::PanicInfo;
 use core::alloc::{GlobalAlloc, Layout};
