@@ -92,16 +92,49 @@ void keyboard_handler(struct InterruptRegisters *regs)
             outb(PIC1_COMMAND, PIC_EOI); 
             currentCommand->commandHandler(argc,args);
         }else{
-         FAT16_DirEntry* file_result=fat_find_file(input);
-         if(file_result==NULL){
-        print("\nUnknown command:");
-        print(input); 
-      
-         }else{
-            outb(PIC1_COMMAND, PIC_EOI); 
-            handle_file(file_result);
-         }
-         print("\n");
+            
+            // Try to find program in /sp/programs using Rust FS
+            char path_buffer[128];
+            // Manually construct path since we might not have sprintf
+            int i = 0;
+            const char* prefix = "sp/programs/";
+            // Copy prefix
+            while(prefix[i] != '\0') {
+               path_buffer[i] = prefix[i];
+               i++; 
+            }
+            // Copy input command
+            int j = 0;
+            while(input[j] != '\0') {
+                path_buffer[i] = input[j];
+                i++;
+                j++;
+            }
+            path_buffer[i] = '\0';
+            
+            extern bool rust_fs_find_path(const char* path);
+            extern uint32_t rust_fs_load_file(const char* path, uint8_t* buffer);
+            
+            if (rust_fs_find_path(path_buffer)) {
+                 outb(PIC1_COMMAND, PIC_EOI);
+                 // Load file
+                 uint8_t* elf_buffer = (uint8_t*)USER_ELF_LOAD_ADDR;
+                 uint32_t size = rust_fs_load_file(path_buffer, elf_buffer);
+                 if (size > 0) {
+                     uint32_t program_entry = load_and_print_elf(elf_buffer);
+                     if(program_entry != 0) {
+                        start_process(program_entry, (uint32_t)get_user_stack() + USER_STACK_SIZE);
+                     } else {
+                         print("Failed to start process: invalid entry point\n");
+                     }
+                 } else {
+                     print("Failed to load file content\n");
+                 }
+            } else {
+                 print("\nUnknown command: ");
+                 print(input); 
+                 print("\n");
+            }
         }
         
     

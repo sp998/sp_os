@@ -296,3 +296,52 @@ pub fn find_by_path(path: &str) -> Option<DirEntry> {
     Some(current_entry)
 }
 
+// --------------------------------------------------------
+// C Interface (FFI)
+// --------------------------------------------------------
+
+#[no_mangle]
+pub extern "C" fn rust_fs_find_path(path: *const u8) -> bool {
+    // Convert C string to Rust &str
+    let mut len = 0;
+    unsafe {
+        while *path.add(len) != 0 {
+            len += 1;
+        }
+    }
+    let path_slice = unsafe { slice::from_raw_parts(path, len) };
+    let path_str = match core::str::from_utf8(path_slice) {
+        Ok(s) => s,
+        Err(_) => return false,
+    };
+
+    find_by_path(path_str).is_some()
+}
+
+#[no_mangle]
+pub extern "C" fn rust_fs_load_file(path: *const u8, buffer: *mut u8) -> u32 {
+    let mut len = 0;
+    unsafe {
+        while *path.add(len) != 0 {
+            len += 1;
+        }
+    }
+    let path_slice = unsafe { slice::from_raw_parts(path, len) };
+    let path_str = match core::str::from_utf8(path_slice) {
+        Ok(s) => s,
+        Err(_) => return 0,
+    };
+
+    if let Some(entry) = find_by_path(path_str) {
+        let data = read_file(&entry);
+        // Copy to buffer
+        unsafe {
+            for (i, b) in data.iter().enumerate() {
+                *buffer.add(i) = *b;
+            }
+        }
+        return data.len() as u32;
+    }
+    0
+}
+
