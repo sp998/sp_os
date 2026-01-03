@@ -38,7 +38,7 @@ WORKDIR /workspace
 COPY . /workspace
 
 # Build the kernel and Rust components (this will create os.iso inside the container's workspace)
-RUN cd rust/rust_kernel && cargo build --target i686-unknown-none && cd ../.. && make os.iso
+RUN cd rust/rust_kernel && cargo build -Z build-std=core,alloc --target i686-unknown-none && cd ../.. && make os.iso
 
 # Set the default command to bash
 

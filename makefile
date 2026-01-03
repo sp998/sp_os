@@ -35,7 +35,7 @@ DISK_IMAGE := mydisk.img
 
 # Build Rust library
 $(BUILD_DIR)/librust_kernel.a:
-	cd $(RUST_DIR) && cargo build --target $(RUST_TARGET)
+	cd $(RUST_DIR) && cargo build -Z build-std=core,alloc --target $(RUST_TARGET)
 	cp $(RUST_DIR)/target/$(RUST_TARGET)/debug/librust_kernel.a $(BUILD_DIR)/
 
 # Build kernel
@@ -60,6 +60,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.s
 # Create ISO
 os.iso: $(BUILD_DIR)/kernel.elf
 	mkdir -p $(ISO_DIR)/boot
+	mkdir -p $(ISO_DIR)/sp/programs
 	cp $(BUILD_DIR)/kernel.elf $(ISO_DIR)/boot/kernel.elf
 	grub-mkrescue -o $(ISO_FILE) $(ISO_DIR)
 
