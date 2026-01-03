@@ -79,8 +79,8 @@ void init_vmm() {
     // identity map *all* detected RAM for now (simplest "flat" paging mode).
     // Or just map what we need. 
     
-    // Let's map 16MB for now, to be safe for heap growth
-     while (i < 0x1000000) { // 16MB
+    // Let's map 32MB for now, to be safe for heap growth and user programs (loaded at 0x1000000)
+     while (i < 0x2000000) { // 32MB
         map_page((void*)i, (void*)i, PAGE_PRESENT | PAGE_RW | PAGE_USER);
         i += 4096;
     }
