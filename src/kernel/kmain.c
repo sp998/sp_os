@@ -24,6 +24,8 @@
 #include <gui/init.h>
 #include <kernel/syscalls/exit_syscall.h>
 #include <kernel/syscalls/input_syscall.h>
+#include <kernel/pmm.h>
+#include <kernel/vmm.h>
 
 
 
@@ -78,6 +80,12 @@ void kmain(uint32_t magic,multiboot_info_t* bootInfo){
 
 
     init_ide();
+
+    // Initialize Memory Management (Paging)
+    // Pass bootInfo to PMM to detect RAM
+    init_pmm(bootInfo);
+    // Initialize VMM (Paging)
+    init_vmm();
 
     update_display();
     //init_mem_disk();
