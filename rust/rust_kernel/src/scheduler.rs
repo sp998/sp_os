@@ -222,24 +222,28 @@ pub extern "C" fn rust_spawn_process(entry_point: u32, stack_top: u32) {
             esp -= 4; *(esp as *mut u32) = 32; // int_no
             
             // PUSHA frame (8 general purpose registers)
-            // Order: EAX, ECX, EDX, EBX, ESP, EBP, ESI, EDI
-            esp -= 4; *(esp as *mut u32) = 0; // EDI
-            esp -= 4; *(esp as *mut u32) = 0; // ESI
-            esp -= 4; *(esp as *mut u32) = 0; // EBP
-            esp -= 4; *(esp as *mut u32) = 0; // ESP (ignored by popa)
-            esp -= 4; *(esp as *mut u32) = 0; // EBX
-            esp -= 4; *(esp as *mut u32) = 0; // EDX
-            esp -= 4; *(esp as *mut u32) = 0; // ECX
+            // Order on stack (highest address to lowest): EAX, ECX, EDX, EBX, ESP, EBP, ESI, EDI
             esp -= 4; *(esp as *mut u32) = 0; // EAX
+            esp -= 4; *(esp as *mut u32) = 0; // ECX
+            esp -= 4; *(esp as *mut u32) = 0; // EDX
+            esp -= 4; *(esp as *mut u32) = 0; // EBX
+            esp -= 4; *(esp as *mut u32) = 0; // ESP
+            esp -= 4; *(esp as *mut u32) = 0; // EBP
+            esp -= 4; *(esp as *mut u32) = 0; // ESI
+            esp -= 4; *(esp as *mut u32) = 0; // EDI
             
-            // DS segment (popped into EBX then moved to segment registers)
+            // Segment registers (popped in order: GS, FS, ES, DS)
+            // So on stack (highest to lowest): DS, ES, FS, GS
             esp -= 4; *(esp as *mut u32) = 0x23; // DS
+            esp -= 4; *(esp as *mut u32) = 0x23; // ES
+            esp -= 4; *(esp as *mut u32) = 0x23; // FS
+            esp -= 4; *(esp as *mut u32) = 0x23; // GS
             
             let new_proc = Process {
                 pid,
-                esp,  // This is now pointing to the kernel stack with the frame
-                cr3: current_cr3,  // Use the current page directory
-                kstack_top,  // Store for TSS esp0 updates
+                esp,  // This is now pointing to the kernel stack with the frame (at GS)
+                cr3: current_cr3,
+                kstack_top,
                 state: ProcessState::Ready,
                 stack_check_val: 0xDEADBEEF,
             };

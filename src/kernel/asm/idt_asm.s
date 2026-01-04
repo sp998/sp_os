@@ -92,7 +92,14 @@ IRQ 15, 47
 extern isr_handler
 isr_common_stub:
     pusha
-    mov eax,ds
+    
+    mov eax, ds
+    push eax
+    mov eax, es
+    push eax
+    mov eax, fs
+    push eax
+    mov eax, gs
     push eax
 
     mov ax,0x10
@@ -108,11 +115,14 @@ isr_common_stub:
     ; isr_handler should return (uint32_t)regs
     mov esp, eax
 
-    pop ebx
-    mov ds,bx
-    mov es,bx
-    mov fs,bx
-    mov gs,bx
+    pop eax
+    mov gs,ax
+    pop eax
+    mov fs,ax
+    pop eax
+    mov es,ax
+    pop eax
+    mov ds,ax
 
     popa
     add esp,8
@@ -122,7 +132,14 @@ isr_common_stub:
 extern irq_handler
 irq_common_stub:
     pusha
-    mov eax,ds
+    
+    mov eax, ds
+    push eax
+    mov eax, es
+    push eax
+    mov eax, fs
+    push eax
+    mov eax, gs
     push eax
 
     mov ax,0x10
@@ -138,11 +155,14 @@ irq_common_stub:
     ; irq_handler returns (uint32_t)regs or new ESP
     mov esp, eax
 
-    pop ebx
-    mov ds,bx
-    mov es,bx
-    mov fs,bx
-    mov gs,bx
+    pop eax
+    mov gs,ax
+    pop eax
+    mov fs,ax
+    pop eax
+    mov es,ax
+    pop eax
+    mov ds,ax
 
     popa
     add esp,8

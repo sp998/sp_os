@@ -20,8 +20,8 @@ int split_string(const char *str, char delimiter, char tokens[][20], int max_tok
 void outPortB(uint16_t port, uint8_t value);
 char inPortB(uint16_t port);
 struct InterruptRegisters{
-    uint32_t ds;
-    uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax;
+    uint32_t gs, fs, es, ds;
+    uint32_t edi, esi, ebp, esp_unused, ebx, edx, ecx, eax;
     uint32_t int_no, err_code;
     uint32_t eip, cs, eflags, useresp, ss;
 
