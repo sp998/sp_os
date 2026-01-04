@@ -194,8 +194,14 @@ pub fn enumerate_dir(path: &str) -> Vec<String> {
                     if e.attr == 0x0F {
                         continue;
                     }
-                    // Add filename to list
-                    files.push(entry_name(e));
+
+                    let name = entry_name(e);
+                    // Filter out unwanted entries
+                    if name == "." || name == ".." || name.starts_with('_') {
+                        continue;
+                    }
+
+                    files.push(name);
                 }
             }
         } else if let Some(e) = find_by_path(path) {
@@ -223,7 +229,18 @@ pub fn enumerate_dir(path: &str) -> Vec<String> {
                             if e.attr == 0x0F {
                                 continue;
                             }
-                            files.push(entry_name(e));
+
+                            let name = entry_name(e);
+                            // Filter out unwanted entries
+                            if name == "."
+                                || name == ".."
+                                || name.starts_with('_')
+                                || name.contains("_PROG")
+                            {
+                                continue;
+                            }
+
+                            files.push(name);
                         }
                     }
                 }
