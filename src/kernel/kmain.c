@@ -123,12 +123,19 @@ void kmain(uint32_t magic,multiboot_info_t* bootInfo){
     // Finalize display setup
     //update_display()
 
-    
-     
-   //print("switching to user mode.\n");
-
-   
     rust_main();
     update_display();
+
+    print("Spawning Shell (PID 1)...\n");
+    rust_spawn_process((uint32_t)user_main, 0);
+     
+    //print("switching to user mode.\n");
+
+    // PID 0 (Kernel Idle Loop)
+    // We stay here and handle interrupts (scheduling)
+  
+
+    /*
     switch_to_user_mode();
+    */
 }

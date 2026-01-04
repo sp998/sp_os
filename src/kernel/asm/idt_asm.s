@@ -120,7 +120,7 @@ irq0:
     call rust_schedule
     ; rust_schedule returns the new ESP in EAX
     mov esp, eax
-    
+
     ; Send EOI to PIC (Master PIC command port 0x20)
     mov al, 0x20
     out 0x20, al

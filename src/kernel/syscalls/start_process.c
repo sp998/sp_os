@@ -2,12 +2,15 @@
 #include <io.h>
 #include <idt.h>
 
-extern void trigger_process(uint32_t eip, uint32_t esp);
+// Use the Rust scheduler to spawn process instead of just jumping to it
+// This ensures the process gets its own stack and is managed by the scheduler
+extern void rust_spawn_process(uint32_t entry_point, uint32_t stack_top);
 
 void handler_start_process(struct InterruptRegisters *regs){
 
     //print("System call: Starting new process:\n");
-    trigger_process(regs->ebx,regs->ecx);
+    // Pass 0 as stack_top to force allocation of a new user stack
+    rust_spawn_process(regs->ebx, 0);
 }
 
 

@@ -85,8 +85,12 @@ impl Scheduler {
                 unsafe {
                     extern "C" {
                         static mut tss_entry: TssEntry;
+                   
+                    
                     }
                     tss_entry.esp0 = next.kstack_top;
+                    // Debug print to verify context switch details
+                 
                 }
             }
             
@@ -182,7 +186,7 @@ pub extern "C" fn rust_schedule(current_esp: u32) -> u32 {
 }
 
 #[no_mangle]
-pub extern "C" fn rust_spawn_process(entry_point: u32, stack_top: u32) {
+pub extern "C" fn rust_spawn_process(entry_point: u32, _ignored_stack_top: u32) {
     unsafe { core::arch::asm!("cli"); }
     {
         let mut scheduler = SCHEDULER.lock();
@@ -198,25 +202,46 @@ pub extern "C" fn rust_spawn_process(entry_point: u32, stack_top: u32) {
             let mut current_cr3: u32;
             core::arch::asm!("mov {}, cr3", out(reg) current_cr3);
             
-            // Allocate a separate 4KB kernel stack for this process
-            // The interrupt frame will be built on this kernel stack
-            let kstack = malloc(4096);
+            // 1. Allocate a separate 16KB KERNEL stack for this process
+            let kstack = malloc(16384);
             if kstack.is_null() {
-                // Out of memory - can't create process
                 unsafe { core::arch::asm!("sti"); }
                 return;
             }
+            let kstack_top = (kstack as u32) + 16384;
+
+            // 2. Allocate a separate 16KB USER stack for this process
+            // This ensures every process has its own isolated stack in Ring 3
+            let user_stack = malloc(16384);
+            if user_stack.is_null() {
+                // TODO: Free kstack
+                unsafe { core::arch::asm!("sti"); }
+                return;
+            }
+            let mut user_stack_top = (user_stack as u32) + 16384;
             
-            // Calculate kernel stack top (for TSS esp0)
-            let kstack_top = (kstack as u32) + 4096;
+            // Push a dummy return address (0xDEADBEEF) onto the User Stack.
+            // If sp_main returns, it will pop this and crash at 0xDEADBEEF.
+            // This helps verify if the process is returning unexpectedly.
+            user_stack_top -= 4;
+            *(user_stack_top as *mut u32) = 0xDEADBEEF;
             
+            unsafe {
+                 extern "C" { 
+                    #[link_name = "printf_"]
+                    fn printf(fmt: *const u8, ...); 
+                 }
+                 let fmt = b"Spawning PID %d: Entry %x Kstack %x UStack %x\n\0";
+                 printf(fmt.as_ptr(), pid, entry_point, kstack_top, user_stack_top);
+            }
+
             // Build the interrupt frame on the kernel stack
             // Start from the top of the kernel stack
             let mut esp = kstack_top;
             
             // IRET frame (bottom of stack, popped last)
             esp -= 4; *(esp as *mut u32) = 0x23;           // SS
-            esp -= 4; *(esp as *mut u32) = stack_top;      // User ESP (top of user stack)
+            esp -= 4; *(esp as *mut u32) = user_stack_top; // User ESP (top of NEW user stack)
             esp -= 4; *(esp as *mut u32) = 0x202;          // EFLAGS (IF=1)
             esp -= 4; *(esp as *mut u32) = 0x1B;           // CS
             esp -= 4; *(esp as *mut u32) = entry_point;    // EIP
@@ -238,6 +263,31 @@ pub extern "C" fn rust_spawn_process(entry_point: u32, stack_top: u32) {
             
             // Segment registers (popped in order: GS, FS, ES, DS)
             // So on stack (highest to lowest): DS, ES, FS, GS
+            // Correct order for pop:
+            // pop gs
+            // pop fs
+            // pop es
+            // pop ds
+            //
+            // So we must push: DS, ES, FS, GS (top of stack)
+            // But we push them manually in reverse order of popping?
+            // Wait, pop gs -> stack has GS at top.
+            // pop fs -> stack has FS at top.
+            
+            // Current irq0 handler:
+            // mov eax, ds; push eax
+            // mov eax, es; push eax
+            // mov eax, fs; push eax
+            // mov eax, gs; push eax
+            // So on stack (top): GS, FS, ES, DS (bottom)
+            
+            // Restore:
+            // pop eax; mov gs, ax  (pops GS)
+            // pop eax; mov fs, ax  (pops FS)
+            // pop eax; mov es, ax  (pops ES)
+            // pop eax; mov ds, ax  (pops DS)
+            
+            // So we need to push DS, then ES, then FS, then GS (so GS is at top)
             esp -= 4; *(esp as *mut u32) = 0x23; // DS
             esp -= 4; *(esp as *mut u32) = 0x23; // ES
             esp -= 4; *(esp as *mut u32) = 0x23; // FS
@@ -302,8 +352,9 @@ pub extern "C" fn rust_spawn_process_from_file(path_ptr: *const u8) {
     
     extern "C" {
         fn malloc(size: usize) -> *mut u8;
+        fn free(ptr: *mut u8);
         fn load_and_print_elf(elf_buffer: *mut u8) -> u32;
-        fn get_user_stack() -> *mut u8;
+        // fn get_user_stack() -> *mut u8; // Removed: We allocate stack per process now
     }
 
     let buf = unsafe { malloc(128 * 1024) }; // 128KB buffer for ELF
@@ -312,12 +363,12 @@ pub extern "C" fn rust_spawn_process_from_file(path_ptr: *const u8) {
     if size > 0 {
         let entry_point = unsafe { load_and_print_elf(buf) };
         if entry_point != 0 {
-            // USER_STACK_SIZE is defined as 4096 in syslib.h
-            const USER_STACK_SIZE: u32 = 4096;
-            let stack_top = unsafe { get_user_stack().add(USER_STACK_SIZE as usize) as u32 };
-            rust_spawn_process(entry_point, stack_top);
+            // Pass 0 as stack_top, rust_spawn_process will allocate a new one
+            rust_spawn_process(entry_point, 0);
         }
     }
+    
+    unsafe { free(buf); }
 }
 
 extern "C" {
