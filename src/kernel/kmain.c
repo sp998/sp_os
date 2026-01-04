@@ -126,7 +126,7 @@ void kmain(uint32_t magic,multiboot_info_t* bootInfo){
     rust_main();
     update_display();
 
-    print("Spawning Shell (PID 1)...\n");
+   
     rust_spawn_process((uint32_t)user_main, 0);
      
     //print("switching to user mode.\n");

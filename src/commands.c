@@ -199,10 +199,6 @@ void start_command(int argc, char* argv[]) {
     if (rust_fs_find_path(full_path)) {
         extern void rust_spawn_process_from_file(const char* path);
         rust_spawn_process_from_file(full_path);
-        print("Starting process: ");
-        print(argv[1]);
-        print("\n");
-        update_display();
     } else {
         print("Program not found: ");
         print(full_path);
