@@ -6,16 +6,18 @@
 
 
 static uint32_t ticks = 0;
-uint32_t onIRQ0(struct InterruptRegisters *regs)
-{
+
+void timer_tick() {
     ticks++;
-    extern uint32_t rust_schedule(uint32_t current_esp);
-    return rust_schedule((uint32_t)regs);
 }
+
+// Handler is now in ASM (irq0)
+// uint32_t onIRQ0(struct InterruptRegisters *regs) ...
+
 void init_timer()
 {
     ticks = 0;
-    irq_install_handler(0, &onIRQ0);
+    // irq_install_handler(0, &onIRQ0); // Handled by ASM irq0 directly
 
     uint32_t divisor = 1193180 / TIMER_FREQ;
     outb(0x43, 0x36);

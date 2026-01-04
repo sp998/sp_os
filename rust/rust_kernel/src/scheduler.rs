@@ -173,6 +173,10 @@ pub extern "C" fn rust_init_multitasking() {
 
 #[no_mangle]
 pub extern "C" fn rust_schedule(current_esp: u32) -> u32 {
+    unsafe {
+        extern "C" { fn timer_tick(); }
+        timer_tick();
+    }
     let mut scheduler = SCHEDULER.lock();
     scheduler.schedule(current_esp)
 }

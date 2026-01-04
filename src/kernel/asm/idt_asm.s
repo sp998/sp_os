@@ -70,7 +70,6 @@ ISR_NOERRCODE 31
 ISR_NOERRCODE 128
 ISR_NOERRCODE 177
 
-IRQ 0, 32
 IRQ 1, 33
 IRQ 2, 34
 IRQ 3, 35
@@ -88,6 +87,57 @@ IRQ 14, 46
 IRQ 15, 47 
 
 
+
+extern rust_schedule
+
+global irq0
+irq0:
+    cli
+    push 0          ; error code
+    push 32         ; int_no
+
+    ; Save context
+    pusha           ; Pushes edi, esi, ebp, esp, ebx, edx, ecx, eax
+
+    mov eax, ds
+    push eax
+    mov eax, es
+    push eax
+    mov eax, fs
+    push eax
+    mov eax, gs
+    push eax
+
+    ; Switch to kernel data segment
+    mov ax, 0x10
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+
+    ; Pass current ESP (which points to saved GS) to rust_schedule
+    push esp
+    call rust_schedule
+    ; rust_schedule returns the new ESP in EAX
+    mov esp, eax
+    
+    ; Send EOI to PIC (Master PIC command port 0x20)
+    mov al, 0x20
+    out 0x20, al
+
+    ; Restore context
+    pop eax
+    mov gs, ax
+    pop eax
+    mov fs, ax
+    pop eax
+    mov es, ax
+    pop eax
+    mov ds, ax
+
+    popa
+    add esp, 8      ; Pop int_no and error code
+    iret
 
 extern isr_handler
 isr_common_stub:

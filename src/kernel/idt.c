@@ -37,6 +37,12 @@ void initIdt()
     outPortB(PIC1_DATA, 0x00);
     outPortB(PIC2_DATA, 0x00);
 
+    // Unmask keyboard (IRQ1) explicitly
+    // Mask is 0xFC (1111 1100) -> Enable IRQ0 (timer) and IRQ1 (keyboard)
+    // Actually, initIdt() sets mask to 0x00 (all enabled), but let's double check logic.
+    // The code above sets data to 0x00, which unmasks ALL interrupts.
+    // However, it's good practice to ensure we enable interrupts at the CPU level too.
+
     setIdtGate(0, (uint32_t)isr0, 0x08, 0x8E);
     setIdtGate(1, (uint32_t)isr1, 0x08, 0x8E);
     setIdtGate(2, (uint32_t)isr2, 0x08, 0x8E);

@@ -35,7 +35,7 @@ DISK_IMAGE := mydisk.img
 
 # Build Rust library
 $(BUILD_DIR)/librust_kernel.a:
-	cd $(RUST_DIR) && cargo build -Z build-std=core,alloc --target $(RUST_TARGET)
+	cd $(RUST_DIR) && cargo build -Z build-std=core,alloc --target $(RUST_TARGET).json
 	cp $(RUST_DIR)/target/$(RUST_TARGET)/debug/librust_kernel.a $(BUILD_DIR)/
 
 # Build kernel
